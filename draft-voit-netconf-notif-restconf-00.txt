@@ -12,8 +12,6 @@ Expires: December 11, 2016                             E. Nilsen-Nygaard
 
 Abstract
 
-   WORKING COPY - NOT YET SUBMITTED POSTED TO IETF AS A DRAFT
-
    This document defines Event Notification YANG Subscription and Push
    mechanisms for Restconf, HTTP, and HTTP2 transports.
 
@@ -46,39 +44,39 @@ Copyright Notice
    carefully, as they describe your rights and restrictions with respect
    to this document.  Code Components extracted from this document must
    include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
 
 
 
 Voit, et al.            Expires December 11, 2016               [Page 1]
 
-Internet-Draft                Restconf Push                    June 2016
+Internet-Draft               Restconf-Notif                    June 2016
 
-
-   the Trust Legal Provisions and are provided without warranty as
-   described in the Simplified BSD License.
 
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
-   3.  Solution  . . . . . . . . . . . . . . . . . . . . . . . . . .   3
-     3.1.  Mechanisms for Subscription Establishment and Maintenance   3
+   3.  Solution  . . . . . . . . . . . . . . . . . . . . . . . . . .   4
+     3.1.  Mechanisms for Subscription Establishment and Maintenance   4
      3.2.  Subscription Multiplexing . . . . . . . . . . . . . . . .   6
-     3.3.  Push Data Stream and Transport Mapping  . . . . . . . . .   6
-   4.  Security Considerations . . . . . . . . . . . . . . . . . . .  11
-   5.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  12
-     5.1.  Normative References  . . . . . . . . . . . . . . . . . .  12
-     5.2.  Informative References  . . . . . . . . . . . . . . . . .  12
+     3.3.  Push Data Stream and Transport Mapping  . . . . . . . . .   7
+   4.  Security Considerations . . . . . . . . . . . . . . . . . . .  12
+   5.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  13
+   6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  13
+     6.1.  Normative References  . . . . . . . . . . . . . . . . . .  13
+     6.2.  Informative References  . . . . . . . . . . . . . . . . .  13
    Appendix A.  Proxy YANG Subscription when the Subscriber and
-                Receiver are different . . . . . . . . . . . . . . .  13
-   Appendix B.  End-to-End Deployment Guidance . . . . . . . . . . .  14
-     B.1.  Call Home . . . . . . . . . . . . . . . . . . . . . . . .  15
-     B.2.  TLS Heartbeat . . . . . . . . . . . . . . . . . . . . . .  15
-   Appendix C.  Issues being worked and resolved . . . . . . . . . .  15
-     C.1.  Unresolved Issues . . . . . . . . . . . . . . . . . . . .  15
-     C.2.  Agreement in principal  . . . . . . . . . . . . . . . . .  15
-     C.3.  new section . . . . . . . . . . . . . . . . . . . . . . .  16
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  16
+                Receiver are different . . . . . . . . . . . . . . .  14
+   Appendix B.  End-to-End Deployment Guidance . . . . . . . . . . .  16
+     B.1.  Call Home . . . . . . . . . . . . . . . . . . . . . . . .  16
+     B.2.  TLS Heartbeat . . . . . . . . . . . . . . . . . . . . . .  16
+   Appendix C.  Issues being worked and resolved . . . . . . . . . .  17
+     C.1.  Unresolved Issues . . . . . . . . . . . . . . . . . . . .  17
+     C.2.  Agreement in principal  . . . . . . . . . . . . . . . . .  17
+     C.3.  Resolved Issues . . . . . . . . . . . . . . . . . . . . .  17
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  17
 
 1.  Introduction
 
@@ -105,9 +103,11 @@ Table of Contents
 
 
 
+
+
 Voit, et al.            Expires December 11, 2016               [Page 2]
 
-Internet-Draft                Restconf Push                    June 2016
+Internet-Draft               Restconf-Notif                    June 2016
 
 
 2.  Terminology
@@ -116,36 +116,55 @@ Internet-Draft                Restconf Push                    June 2016
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in RFC 2119 [RFC2119].
 
-   (** Section to be updated when we finalize definitions **) Datastore:
-   a conceptual store of instantiated management information, with
-   individual data items represented by data nodes which are arranged in
-   hierarchical manner.
+   Configured Subscription: a Subscription installed via a configuration
+   interface which persissts across reboots.
+
+   Data Node: An instance of management information in a datastore.
+
+   Data Node Update: A data item containing the current value/property
+   of a Data Node at the time the Data Node Update was created.
 
    Dynamic Subscription: a Subscription negotiated between Subscriber
    and Publisher via create, establish, modify, and delete RPC control
    plane signaling messages.
 
-   Publisher: an entity responsible for distributing subscribed YANG
-   object data per the terms of a Subscription.  In general, a Publisher
-   is the owner of the YANG datastore that is subjected to the
-   Subscription.
+   Event: an occurrence of something that may be of interest. (e.g., a
+   configuration change, a fault, a change in status, crossing a
+   threshold, status of a flow, or an external input to the system.)
 
-   Receiver: a target to which a Publisher pushes updates.  In many
-   deployments, the Receiver and Subscriber will be the same entity.
+   Event Notification: a set of information intended for a Receiver
+   indicating that one or more Event(s) have occurred.  Details of the
+   Event(s) may be included within.
 
-   Configured Subscription: A Subscription installed via a configuration
-   interface.
+   Event Stream: a continuous, ordered set of Events grouped under an
+   explicit criteria.
+
+   Notification: the communication of an occurrence, perhaps triggered
+   by the occurrence of an Event.
+
+   Publisher: an entity responsible for streaming Event Notifications
+   per the terms of a Subscription.
+
+   Receiver: a target to which a Publisher pushes Event Notifications.
+   For Dynamic Subscriptions, the Receiver and Subscriber will often be
+   the same entity.
 
    Subscriber: an entity able to request and negotiate a contract for
-   push updates from a Publisher.
+   the receipt of Event Notifications from a Publisher
 
-   Subscription: a contract between a Subscriber and a Publisher,
+   Subscription: a contract between a Subscriber and a Publisher
    stipulating which information the Receiver wishes to have pushed from
    the Publisher without the need for further solicitation.
 
-   Subscription Update: a set of data nodes and object values pushed
-   together as a unit and intended to meet the obligations of a single
-   subscription at a snapshot in time.
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016               [Page 3]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
 
 3.  Solution
 
@@ -158,22 +177,14 @@ Internet-Draft                Restconf Push                    June 2016
    There are three models for Subscription establishment and
    maintenance:
 
-
-
-
-Voit, et al.            Expires December 11, 2016               [Page 3]
-
-Internet-Draft                Restconf Push                    June 2016
-
-
    1.  Dynamic Subscription: Here the Subscriber and Receiver are the
        same.  A Subscription ends with a subscription-terminated
        notification, or by a loss of transport connectivity.
 
    2.  Configured Subscription: Receiver(s) are specified on Publisher
-       in startup and running config.  Subscription is not Terminated
+       in startup and running config.  Subscription is not terminated
        except via an operations interface.  (Subscriptions may be
-       Suspended, and no notifications sent however.)
+       Suspended, with no Event Notifications sent however.)
 
    3.  Proxy Subscription: Subscriber and Receiver are different.
        Subscription ends when a Subscription End-time is reached, or the
@@ -200,42 +211,45 @@ Internet-Draft                Restconf Push                    June 2016
           :             ^             :     :....Model 3....:
         Model 1         :...Model 2...:      (out of scope)
 
-3.1.1.  Dynamic YANG Subscription over RESTCONF
 
-   Dynamic Subscriptions are configured and manage Subscriptions via
-   signaling.  This signaling is transported over [restconf].  Once
-   established, streaming Subscription Updates are then delivered via
-   Restconf SSE.
 
-3.1.2.  Configured Subscription over HTTP
 
-   With a Configured Subscription, all information needed to establish a
-   secure object push relationship with that Receiver is configured on
-   the Publisher.  With this information, the Publisher will establish a
-   secure transport connection with the Receiver and then begin pushing
-   the streaming updates to the Receiver.  Since Restconf might not
 
 
 
 Voit, et al.            Expires December 11, 2016               [Page 4]
 
-Internet-Draft                Restconf Push                    June 2016
+Internet-Draft               Restconf-Notif                    June 2016
 
 
-   exist on the Receiver, it is not desirable to require that updates be
-   pushed via Restconf.  Nor is there value which Restconf provides on
-   top of HTTP.  Therefore in place of Restconf, a TLS secured HTTP
-   Client connection must be established with an HTTP Server located on
-   the Receiver.  Subscription Updates will then be sent via HTTP Post
-   messages to the Receiver.
+3.1.1.  Dynamic YANG Subscription over RESTCONF
+
+   Dynamic Subscriptions are configured and manage Subscriptions via
+   signaling.  This signaling is transported over [restconf].  Once
+   established, streaming Event Notifications are then delivered via
+   Restconf SSE.
+
+3.1.2.  Configured Subscription over HTTP
+
+   With a Configured Subscription, all information needed to establish a
+   secure relationship with that Receiver is configured on the
+   Publisher.  With this information, the Publisher will establish a
+   secure transport connection with the Receiver and then begin pushing
+   the Event Notifications to the Receiver.  Since Restconf might not
+   exist on the Receiver, it is not desirable to require that such Event
+   Notifications be pushed via Restconf.  Nor is there value which
+   Restconf provides on top of HTTP.  Therefore in place of Restconf, a
+   TLS secured HTTP Client connection must be established with an HTTP
+   Server located on the Receiver.  Event Notifications will then be
+   sent via HTTP Post messages to the Receiver.
 
    Post messages will be addressed to HTTP augmentation code on the
-   Receiver capable of accepting and responding to Subscription Updates.
+   Receiver capable of accepting and responding to Event Notifications.
    At least the initial Post message must include the URI for the
    subscribed resource.  This URI can be retained for operational
    tracking and debugging use by the Receiver.
 
-   After successful receipt of an initial Subscription Update for a
+   After successful receipt of an initial Event Notification for a
    particular Subscription, the Reciever should reply back with an HTTP
    status code of 201 (Created).  Further successful receipts should
    result in the return of code of 202 (Accepted).  At any point,
@@ -248,6 +262,21 @@ Internet-Draft                Restconf Push                    June 2016
    accepting Response code feedback for recently initiated HTTP POSTs.
 
    Figure 2 depicts this message flow.
+
+
+
+
+
+
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016               [Page 5]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
 
       +-----------+                 +----------+
       | Publisher |                 | Receiver |
@@ -268,15 +297,8 @@ Internet-Draft                Restconf Push                    June 2016
    If HTTP/2 transport is available to a Receiver, the Publisher should
    also:
 
-   o  point individual Subscription Updates to a unique HTTP/2 stream
-      for that Subscription,
-
-
-
-Voit, et al.            Expires December 11, 2016               [Page 5]
-
-Internet-Draft                Restconf Push                    June 2016
-
+   o  point individual Event Notifications to a unique HTTP/2 stream for
+      that Subscription,
 
    o  take any subscription-priority and provision it into the HTTP/2
       stream priority, and
@@ -286,10 +308,10 @@ Internet-Draft                Restconf Push                    June 2016
 
 3.2.  Subscription Multiplexing
 
-   When pushed directly over HTTP/2, it is expected that each
-   Subscription Update will be allocated a separate Stream.  This will
-   enable multiplexing, and address issues of Head-of-line blocking with
-   different priority Subscriptions.
+   When pushed directly over HTTP/2, it is expected that the Event
+   Notifications from a single Subscription will be allocated a separate
+   HTTP/2 stream.  This will enable multiplexing, and address issues of
+   Head-of-line blocking with different priority Subscriptions.
 
    When pushed via Restconf over HTTP/2, different Subscriptions will
    not be mapped to independent HTTP/2 streams.  When Restconf specifies
@@ -305,43 +327,44 @@ Internet-Draft                Restconf Push                    June 2016
    o  temporary loss of transport connectivity, with update buffering
       and different dequeuing priorities per Subscription
 
+
+
+Voit, et al.            Expires December 11, 2016               [Page 6]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
+
    o  population, marshalling and bundling of independent Subscription
       Updates, and
 
    o  parallel HTTP1.1 sessions
 
-   Therefore each Subscription Update will include a microsecond level
-   timestamp to ensure that a receiver understands the time when a that
+   Therefore each Event Notification will include a microsecond level
+   timestamp to ensure that a Receiver understands the time when a that
    update was generated.  Use of this timestamp can give an indication
    of the state of objects at a Publisher when state-entangled
    information is received across different subscriptions.  The use of
-   the latest Subscription Update timestamp for a particular object
+   the latest Event Notification timestamp for a particular object
    update can introduce errors.  So when state-entangled updates have
    inconsistent object values and temporally close timestamps, a
    Receiver might consider performing a 'get' to validate the current
-   state of objects.
+   state of a Publisher.
 
 3.3.  Push Data Stream and Transport Mapping
 
-   Transported updates will contain data for one or more Subscription
-   Updates.  Each transported Subscription Update notification contains
+   Transported updates will contain data for one or more Event
+   Notifications.  Each transported Event Notification will contain
    several parameters:
-
-
-
-Voit, et al.            Expires December 11, 2016               [Page 6]
-
-Internet-Draft                Restconf Push                    June 2016
-
 
    o  A Subscription ID correlator
 
-   o  Events or Data Nodes containing the updates.  (Note: These must be
-      filtered per access control rules to contain only data that the
-      subscriber is authorized to see.)
+   o  Event Notification(s) . (Note 1: These must be filtered per access
+      control rules to contain only data that the Subscriber is
+      authorized to see.  Note 2: these Event Notifications might be
+      Data Node Update(s).)
 
-   o  A timestamp indication when the push update was generated on the
-      Publisher.
+   o  A timestamp indication when the Event Notification was generated
+      on the Publisher.
 
 3.3.1.  Subscription and Updates via Restconf
 
@@ -356,6 +379,16 @@ Internet-Draft                Restconf Push                    June 2016
    Accept: application/yang.data+xml
 
    If the server supports it, it may respond
+
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016               [Page 7]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
 
    HTTP/1.1 200 OK
    Content-Type: application/yang.api+xml
@@ -374,29 +407,19 @@ Internet-Draft                Restconf Push                    June 2016
                </access>
             </stream>
 
-   (*** Also need to add an example of Event Stream ***) If the server
-   does not support any form of subscription, it may respond
+   If the server does not support any form of subscription, it may
+   respond
 
    HTTP/1.1 404 Not Found
    Date: Mon, 25 Apr 2012 11:10:30 GMT
    Server: example-server
 
-
-
-
-
-Voit, et al.            Expires December 11, 2016               [Page 7]
-
-Internet-Draft                Restconf Push                    June 2016
-
-
    Subscribers can determine the URL to receive updates by sending an
    HTTP GET request for the "location" leaf with the stream list
-   entry.The stream to use for may be selected from the list provided in
-   the capabilities exchange.  The location returned by the publisher
-   can be used for the actual notification subscription.  Note that
-   different encodings are supporting using different locations.  For
-   example, he subscriber might send the following request:
+   entry.The stream to use for may be selected from the Event Stream
+   list provided in the capabilities exchange.  Note that different
+   encodings are supporting using different Event Stream locations.  For
+   example, the Subscriber might send the following request:
 
    GET /restconf/data/ietf-restconf-monitoring:restconf-state/
             streams/stream=yang-push/access=xml/location HTTP/1.1
@@ -413,10 +436,18 @@ Internet-Draft                Restconf Push                    June 2016
       </location>
 
    To subscribe and start receiving updates, the subscriber can then
-   send an HTTP GET request for the URL returned by the publisher in the
+   send an HTTP GET request for the URL returned by the Publisher in the
    request above.  The accept header must be "text/event-stream".  The
-   publisher handles the connection as an event stream, using the Server
-   Sent Events[W3C-20121211] transport strategy.
+
+
+
+Voit, et al.            Expires December 11, 2016               [Page 8]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
+
+   Publisher uses the Server Sent Events[W3C-20121211] transport
+   strategy to push filtered Event Notifications from the Event stream,.
 
    The publisher MUST support as query parameters for a GET method on
    this resource all the parameters of a subscription.  The only
@@ -441,9 +472,34 @@ Internet-Draft                Restconf Push                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 8]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016               [Page 9]
 
-Internet-Draft                Restconf Push                    June 2016
+Internet-Draft               Restconf-Notif                    June 2016
 
 
    HTTP/1.1 501 Not Implemented
@@ -486,7 +542,7 @@ Internet-Draft                Restconf Push                    June 2016
            }
          }
 
-   The following is an example of a push Subscription Update data for
+   The following is an example of a pushed Event Notification data for
    the subscription above.  It contains a subtree with root foo that
    contains a leaf called bar:
 
@@ -497,9 +553,9 @@ Internet-Draft                Restconf Push                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 9]
+Voit, et al.            Expires December 11, 2016              [Page 10]
 
-Internet-Draft                Restconf Push                    June 2016
+Internet-Draft               Restconf-Notif                    June 2016
 
 
    XML encoding representation:
@@ -531,7 +587,7 @@ Internet-Draft                Restconf Push                    June 2016
      }
    }
 
-   To modify a subscription, the subscriber issues another GET request
+   To modify a Subscription, the subscriber issues another GET request
    on the provided URI using the same subscription-id as in the original
    request.  For example, to modify the update period to 10 seconds, the
    subscriber may send:
@@ -539,7 +595,7 @@ Internet-Draft                Restconf Push                    June 2016
    GET /mystreams/yang-push?subscription-id=my-sub&period=10&
           subtree-filter=%2Ffoo'
 
-   To delete a subscription, the subscriber issues a DELETE request on
+   To delete a Subscription, the Subscriber issues a DELETE request on
    the provided URI using the same subscription-id as in the original
    request
 
@@ -553,9 +609,9 @@ Internet-Draft                Restconf Push                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016              [Page 10]
+Voit, et al.            Expires December 11, 2016              [Page 11]
 
-Internet-Draft                Restconf Push                    June 2016
+Internet-Draft               Restconf-Notif                    June 2016
 
 
    POST (IP+Port) HTTP/1.1
@@ -578,41 +634,45 @@ Internet-Draft                Restconf Push                    June 2016
    Subscriptions could be used to intentionally or accidentally overload
    resources of a Publisher.  For this reason, it is important that the
    Publisher has the ability to prioritize the establishment and push of
-   updates where there might be resource exhaust potential.  In
-   addition, a server needs to be able to suspend existing subscriptions
-   when needed.  When this occurs, the subscription status must be
-   updated accordingly and the clients are notified.
+   Event Notifications where there might be resource exhaust potential.
+   In addition, a server needs to be able to suspend existing
+   Subscriptions when needed.  When this occurs, the subscription status
+   must be updated accordingly and the Receivers notified.
 
-   A Subscription could be used to retrieve data in subtrees that a
-   client has not authorized access to.  Therefore it is important that
-   data pushed via a Subscription is authorized equivalently with
-   regular data retrieval operations.  Data being pushed to a client
+   A Subscription could be used to attempt retrieve information for
+   which a Receiver has no authorized access.  Therefore it is important
+   that data pushed via a Subscription is authorized equivalently with
+   regular data retrieval operations.  Data being pushed to a Receiver
    needs therefore to be filtered accordingly, just like if the data
    were being retrieved on-demand.  The Netconf Authorization Control
    Model [RFC6536] applies even though the transport is not NETCONF.
 
    One or more Publishers could be used to overwhelm a Receiver which
-   doesn't even support subscriptions.  Therefore Updates MUST only be
-   transmittable over Encrypted transports.  Clients which do not want
-   pushed data need only terminate or refuse any transport sessions from
-   the Publisher.
+   doesn't even support Subscriptions.  Therefore Event Notifications
+   for Configured Subscriptions MUST only be transmittable over
+   Encrypted transports.  Clients which do not want pushed Event
+   Notifications need only terminate or refuse any transport sessions
+   from the Publisher.
 
    One or more Publishers could overwhelm a Receiver which is unable to
-   control or handle the volume of Updates received.  In deployments
-   where this might be a concern, transports supporting per-subscription
-   Flow Control and Prioritization (such as HTTP/2) should be selected.
+   control or handle the volume of Event Notifications received.  In
+   deployments where this might be a concern, transports supporting per-
+   subscription Flow Control and Prioritization (such as HTTP/2) should
+   be selected.
+
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016              [Page 12]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
 
    Another benefit is that a well-behaved Publisher implementation is
    that it is difficult to a Publisher to perform a DoS attack on a
    Receiver.  DoS attack protection comes from:
-
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 11]
-
-Internet-Draft                Restconf Push                    June 2016
-
 
    o  the requirement for trust of a TLS session before publication,
 
@@ -621,9 +681,16 @@ Internet-Draft                Restconf Push                    June 2016
    o  that the Publication process is suspended when the Receiver
       doesn't respond.
 
-5.  References
+5.  Acknowledgments
 
-5.1.  Normative References
+   We wish to acknowledge the helpful contributions, comments, and
+   suggestions that were received from: Andy Bierman, Sharon Chisholm,
+   Yan Gang, Peipei Guo, Susan Hares, Tim Jenkins, Balazs Lengyel,
+   Hector Trevino, Kent Watsen, and Guangying Zheng.
+
+6.  References
+
+6.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -646,7 +713,18 @@ Internet-Draft                Restconf Push                    June 2016
               DOI 10.17487/RFC7540, May 2015,
               <http://www.rfc-editor.org/info/rfc7540>.
 
-5.2.  Informative References
+6.2.  Informative References
+
+
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016              [Page 13]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
 
    [call-home]
               Watsen, K., "NETCONF Call Home and RESTCONF Call Home",
@@ -658,17 +736,6 @@ Internet-Draft                Restconf Push                    June 2016
               Prieto, "Subscribing to datastore push updates", February
               2016, <https://datatracker.ietf.org/doc/draft-ietf-i2rs-
               pub-sub-requirements/>.
-
-
-
-
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 12]
-
-Internet-Draft                Restconf Push                    June 2016
-
 
    [restconf]
               Bierman, Andy., Bjorklund, Martin., and Kent. Watsen,
@@ -708,6 +775,13 @@ Appendix A.  Proxy YANG Subscription when the Subscriber and Receiver
    Receiver are different.  Such separation can be useful with some
    combination of:
 
+
+
+Voit, et al.            Expires December 11, 2016              [Page 14]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
+
    o  An operator doesn't want the subscription to be dependent on the
       maintenance of transport level keep-alives.  (Transport
       independence provides different scalability characteristics.)
@@ -715,16 +789,6 @@ Appendix A.  Proxy YANG Subscription when the Subscriber and Receiver
    o  There is not a transport session binding, and a transient
       Subscription needs to survive in an environment where there is
       unreliable connectivity with the Receiver and/or Subscriber.
-
-
-
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 13]
-
-Internet-Draft                Restconf Push                    June 2016
-
 
    o  An operator wants the Publisher to include highly restrictive
       capacity management and Subscription security mechanisms outside
@@ -744,6 +808,35 @@ Internet-Draft                Restconf Push                    June 2016
    the YANG Datastore on the Publisher.
 
    Putting it all together, the message flow is:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016              [Page 15]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
 
         +------------+          +-----------+            +----------+
         | Subscriber |          | Publisher |            | Receiver |
@@ -773,15 +866,6 @@ Appendix B.  End-to-End Deployment Guidance
 
    Several technologies are expected to be seen within a deployment to
    achieve security and ease-of-use requirements.  These are not
-
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 14]
-
-Internet-Draft                Restconf Push                    June 2016
-
-
    necessary for an implementation of this specification, but will be
    useful to consider when considering the operational context.
 
@@ -802,6 +886,14 @@ B.2.  TLS Heartbeat
    where a TLS heartbeat is included, it should be sent just from
    Receiver to Publisher.  Loss of the heartbeat should result in the
    Subscription being terminated with the Subscriber (even when the
+
+
+
+Voit, et al.            Expires December 11, 2016              [Page 16]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
+
    Subscriber and Receiver are different).  The Subscriber can then
    attempt to re-establish the subscription if desired.  If the
    Subscription remains active on the Publisher, future receipt of
@@ -830,15 +922,7 @@ C.2.  Agreement in principal
    RT4 - Need to add into document examples of 5277bis Event streams.
    Document only includes yang-push examples at this point.
 
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 15]
-
-Internet-Draft                Restconf Push                    June 2016
-
-
-C.3.  new section
+C.3.  Resolved Issues
 
    RT5 - Doesn't make sense to use Restconf for Configured
    subscriptions.  HTTP will be used.
@@ -855,6 +939,15 @@ Authors' Addresses
    Cisco Systems
 
    Email: alex@cisco.com
+
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016              [Page 17]
+
+Internet-Draft               Restconf-Notif                    June 2016
 
 
    Ambika Prasad Tripathy
@@ -889,4 +982,23 @@ Authors' Addresses
 
 
 
-Voit, et al.            Expires December 11, 2016              [Page 16]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Voit, et al.            Expires December 11, 2016              [Page 18]
