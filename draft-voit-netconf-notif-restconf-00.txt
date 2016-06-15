@@ -1,10 +1,10 @@
 NETCONF                                                          E. Voit
 Internet-Draft                                                  A. Clemm
 Intended status: Informational                               A. Tripathy
-Expires: December 11, 2016                             E. Nilsen-Nygaard
+Expires: December 17, 2016                             E. Nilsen-Nygaard
                                                       A. Gonzalez Prieto
                                                            Cisco Systems
-                                                            June 9, 2016
+                                                           June 15, 2016
 
 
           Restconf and HTTP Transport for Event Notifications
@@ -30,7 +30,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 11, 2016.
+   This Internet-Draft will expire on December 17, 2016.
 
 Copyright Notice
 
@@ -49,7 +49,7 @@ Copyright Notice
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 1]
+Voit, et al.            Expires December 17, 2016               [Page 1]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -66,14 +66,14 @@ Table of Contents
    5.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  13
    6.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  13
      6.1.  Normative References  . . . . . . . . . . . . . . . . . .  13
-     6.2.  Informative References  . . . . . . . . . . . . . . . . .  13
+     6.2.  Informative References  . . . . . . . . . . . . . . . . .  14
    Appendix A.  Proxy YANG Subscription when the Subscriber and
                 Receiver are different . . . . . . . . . . . . . . .  14
    Appendix B.  End-to-End Deployment Guidance . . . . . . . . . . .  16
      B.1.  Call Home . . . . . . . . . . . . . . . . . . . . . . . .  16
      B.2.  TLS Heartbeat . . . . . . . . . . . . . . . . . . . . . .  16
-   Appendix C.  Issues being worked and resolved . . . . . . . . . .  17
-     C.1.  Unresolved Issues . . . . . . . . . . . . . . . . . . . .  17
+   Appendix C.  Issues being worked and resolved . . . . . . . . . .  16
+     C.1.  Unresolved Issues . . . . . . . . . . . . . . . . . . . .  16
      C.2.  Agreement in principal  . . . . . . . . . . . . . . . . .  17
      C.3.  Resolved Issues . . . . . . . . . . . . . . . . . . . . .  17
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  17
@@ -105,7 +105,7 @@ Table of Contents
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 2]
+Voit, et al.            Expires December 17, 2016               [Page 2]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -161,7 +161,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 3]
+Voit, et al.            Expires December 17, 2016               [Page 3]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -217,7 +217,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 4]
+Voit, et al.            Expires December 17, 2016               [Page 4]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -273,7 +273,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 5]
+Voit, et al.            Expires December 17, 2016               [Page 5]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -329,7 +329,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 6]
+Voit, et al.            Expires December 17, 2016               [Page 6]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -370,8 +370,8 @@ Internet-Draft               Restconf-Notif                    June 2016
 
    Subscribers can dynamically learn whether a RESTCONF server supports
    various types of Event or Yang datastore subscription.  This is done
-   by issuing an HTTP request OPTIONS, HEAD, or GET on the stream.
-   E.g.:
+   by issuing an HTTP request OPTIONS, HEAD, or GET on the stream.  Some
+   examples building upon the existing RESTCONF mechanisms are below:
 
    GET /restconf/data/ietf-restconf-monitoring:restconf-state/
             streams/stream=yang-push HTTP/1.1
@@ -385,7 +385,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 7]
+Voit, et al.            Expires December 17, 2016               [Page 7]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -441,7 +441,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 8]
+Voit, et al.            Expires December 17, 2016               [Page 8]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -497,7 +497,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016               [Page 9]
+Voit, et al.            Expires December 17, 2016               [Page 9]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -553,7 +553,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016              [Page 10]
+Voit, et al.            Expires December 17, 2016              [Page 10]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -609,7 +609,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016              [Page 11]
+Voit, et al.            Expires December 17, 2016              [Page 11]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -665,7 +665,7 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-Voit, et al.            Expires December 11, 2016              [Page 12]
+Voit, et al.            Expires December 17, 2016              [Page 12]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
@@ -692,6 +692,12 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 6.1.  Normative References
 
+   [restconf]
+              Bierman, Andy., Bjorklund, Martin., and Kent. Watsen,
+              "RESTCONF Protocol", March 2016,
+              <https://datatracker.ietf.org/doc/draft-ietf-netconf-
+              restconf/>.
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -713,18 +719,14 @@ Internet-Draft               Restconf-Notif                    June 2016
               DOI 10.17487/RFC7540, May 2015,
               <http://www.rfc-editor.org/info/rfc7540>.
 
-6.2.  Informative References
 
 
-
-
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 13]
+Voit, et al.            Expires December 17, 2016              [Page 13]
 
 Internet-Draft               Restconf-Notif                    June 2016
 
+
+6.2.  Informative References
 
    [call-home]
               Watsen, K., "NETCONF Call Home and RESTCONF Call Home",
@@ -736,12 +738,6 @@ Internet-Draft               Restconf-Notif                    June 2016
               Prieto, "Subscribing to datastore push updates", February
               2016, <https://datatracker.ietf.org/doc/draft-ietf-i2rs-
               pub-sub-requirements/>.
-
-   [restconf]
-              Bierman, Andy., Bjorklund, Martin., and Kent. Watsen,
-              "RESTCONF Protocol", March 2016,
-              <https://datatracker.ietf.org/doc/draft-ietf-netconf-
-              restconf/>.
 
    [rfc5277bis]
               Gonzalez Prieto, Alberto., Clemm, Alexander., Voit, Eric.,
@@ -775,16 +771,16 @@ Appendix A.  Proxy YANG Subscription when the Subscriber and Receiver
    Receiver are different.  Such separation can be useful with some
    combination of:
 
-
-
-Voit, et al.            Expires December 11, 2016              [Page 14]
-
-Internet-Draft               Restconf-Notif                    June 2016
-
-
    o  An operator doesn't want the subscription to be dependent on the
       maintenance of transport level keep-alives.  (Transport
       independence provides different scalability characteristics.)
+
+
+
+Voit, et al.            Expires December 17, 2016              [Page 14]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
 
    o  There is not a transport session binding, and a transient
       Subscription needs to survive in an environment where there is
@@ -808,35 +804,6 @@ Internet-Draft               Restconf-Notif                    June 2016
    the YANG Datastore on the Publisher.
 
    Putting it all together, the message flow is:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 15]
-
-Internet-Draft               Restconf-Notif                    June 2016
-
 
         +------------+          +-----------+            +----------+
         | Subscriber |          | Publisher |            | Receiver |
@@ -862,6 +829,15 @@ Internet-Draft               Restconf-Notif                    June 2016
            |                         |<-------------------------->|
            |                         |                            |
 
+
+
+
+
+Voit, et al.            Expires December 17, 2016              [Page 15]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
+
 Appendix B.  End-to-End Deployment Guidance
 
    Several technologies are expected to be seen within a deployment to
@@ -886,14 +862,6 @@ B.2.  TLS Heartbeat
    where a TLS heartbeat is included, it should be sent just from
    Receiver to Publisher.  Loss of the heartbeat should result in the
    Subscription being terminated with the Subscriber (even when the
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 16]
-
-Internet-Draft               Restconf-Notif                    June 2016
-
-
    Subscriber and Receiver are different).  The Subscriber can then
    attempt to re-establish the subscription if desired.  If the
    Subscription remains active on the Publisher, future receipt of
@@ -916,6 +884,22 @@ C.1.  Unresolved Issues
    RT3 - Do we include 3rd party signaled subscriptions within models
    that need to be supported generically, or for a particular type of
    transport.
+
+
+
+
+
+Voit, et al.            Expires December 17, 2016              [Page 16]
+
+Internet-Draft               Restconf-Notif                    June 2016
+
+
+   RT6 - We need to define encodings of rfc5277bis notifications for
+   both Restconf and HTTP.
+
+   RT7 - HTTP native option doesn't currently use SSE.  But we should
+   evaluate moving to that as possible.  It will make development
+   integration easier and more consistent.
 
 C.2.  Agreement in principal
 
@@ -941,15 +925,6 @@ Authors' Addresses
    Email: alex@cisco.com
 
 
-
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 17]
-
-Internet-Draft               Restconf-Notif                    June 2016
-
-
    Ambika Prasad Tripathy
    Cisco Systems
 
@@ -970,35 +945,4 @@ Internet-Draft               Restconf-Notif                    June 2016
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Voit, et al.            Expires December 11, 2016              [Page 18]
+Voit, et al.            Expires December 17, 2016              [Page 17]
