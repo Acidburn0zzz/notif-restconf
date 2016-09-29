@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?rfc toc="yes"?>
+<?rfc tocompact="yes"?>
+<?rfc tocdepth="2"?>
+<?rfc tocindent="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+<?rfc comments="yes"?>
+<?rfc inline="yes"?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<rfc category="std" docName="draft-ietf-netconf-restconf-notif-01"
+     ipr="trust200902">
+	 
+  <front>
+    <title abbrev="Restconf-Notif">Restconf and HTTP Transport for Event Notifications</title>
+
+    <author fullname="Eric Voit" initials="E." surname="Voit">
+      <organization>Cisco Systems</organization>
+
+      <address>
+        <email>evoit@cisco.com</email>
+      </address>
+    </author>
+
+    <author fullname="Alexander Clemm" initials="A" surname="Clemm">
+      <organization>Cisco Systems</organization>
+
+      <address>
+        <email>alex@clemm.org</email>
+      </address>
+    </author>
+
+	<author fullname="Alberto Gonzalez Prieto" initials="A"
+            surname="Gonzalez Prieto">
+      <organization>Cisco Systems</organization>
+
+      <address>
+        <email>albertgo@cisco.com</email>
+      </address>
+    </author>
+	
+    <author fullname="Ambika Prasad Tripathy" initials="A" surname="Tripathy">
+      <organization>Cisco Systems</organization>
+
+      <address>
+         <email>ambtripa@cisco.com</email>
+      </address>
+    </author>
+
+    <author fullname="Einar Nilsen-Nygaard" initials="E"
+            surname="Nilsen-Nygaard">
+      <organization>Cisco Systems</organization>
+
+      <address>
+         <email>einarnn@cisco.com</email>
+      </address>
+    </author>
+	
+	<author fullname="Andy Bierman" initials="A"
+            surname="Bierman">
+      <organization>YumaWorks</organization>
+
+      <address>
+         <email>andy@yumaworks.com</email>
+      </address>
+    </author>
+	
+    <date day="29" month="September" year="2016"/>
+
+    <area>Operations &amp; Management</area>
+
+    <workgroup>NETCONF</workgroup>
+
+    <keyword>Draft</keyword>
+
+    <abstract>
+      <t/>
+
+      <t>This document defines Restconf, HTTP2, and HTTP1.1 bindings for the transport Subscription requests and corresponding push updates. Being subscribed may be both Event Notifications and YANG Datastores.</t>
+
+      <t/>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+      <t>Mechanisms to support Event subscription and push are defined in <xref target="rfc5277bis"/>. Enhancements to <xref target="rfc5277bis"/> which enable YANG Datastore subscription and push are defined in <xref target="yang-push"/>. This document provides a transport specification for these protocols over Restconf and HTTP.  Driving these requirements is <xref target="RFC7923"/>.</t>
+
+      <t>The streaming of Subscription Event Notifications has synergies with HTTP2 streams. Benefits which can be realized when transporting events directly HTTP2 <xref target="RFC7540"/> include:</t>
+
+      <t><list style="symbols">
+          <t>Elimination of head-of-line blocking</t>
+
+          <t>Weighting and proportional dequeuing of Events from different subscriptions</t>
+
+          <t>Explicit precedence in subscriptions so that events from one subscription must be sent before another dequeues</t>
+        </list>
+		</t>
+    </section>
+
+    <section title="Terminology">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in <xref target="RFC2119">RFC 2119</xref>.</t>
+
+      <t>Configured Subscription: a Subscription installed via a configuration interface which persists across reboots.</t>
+
+      <t>Dynamic Subscription: a Subscription negotiated between Subscriber and Publisher via create, establish, modify, and delete RPC signaling messages.</t>
+
+      <t>Event: an occurrence of something that may be of interest. (e.g., a configuration change, a fault, a change in status, crossing a threshold, status of a flow, or an external input to the system.)</t>
+
+      <t>Event Notification: a set of information intended for a Receiver indicating that one or more Event(s) have occurred. Details of the Event(s) may be included within.</t>
+
+      <t>Event Stream: a continuous, ordered set of Events grouped under an explicit criteria.</t>
+
+      <t>Notification: the communication of an occurrence, perhaps triggered by the occurrence of an Event.</t>
+
+      <t>Publisher: an entity responsible for streaming Event Notifications per the terms of a Subscription.</t>
+
+      <t>Receiver: a target to which a Publisher pushes Event Notifications. For Dynamic Subscriptions, the Receiver and Subscriber will often be the same entity.</t>
+
+      <t>Subscriber: an entity able to request and negotiate a contract for the receipt of Event Notifications from a Publisher</t>
+
+      <t>Subscription: a contract between a Subscriber and a Publisher stipulating which information the Receiver wishes to have pushed from the Publisher without the need for further solicitation.</t>
+
+      <t/>
+    </section>
+
+    <section title="Solution">
+      <t>Event subscription is defined in <xref target="rfc5277bis"/>, YANG Datastore subscription is defined in <xref target="yang-push"/>. This section specifies transport mechanisms applicable to both.</t>
+
+      <section title="Mechanisms for Subscription Establishment and Maintenance">
+        <t>There are three models for Subscription establishment and maintenance:</t>
+
+        <t><list style="numbers">
+            <t>Dynamic Subscription: Here the Subscriber and Receiver are the same. A Subscription ends with a subscription-terminated notification, or by a loss of transport connectivity.</t>
+
+            <t>Configured Subscription: Receiver(s) are specified on Publisher in startup and running config. Subscription is not terminated except via an operations interface. (Subscriptions may be Suspended, with no Event Notifications sent however.)</t>
+
+            <t>Proxy Subscription: Subscriber and Receiver are different. Subscription ends when a Subscription End-time is reached, or the Publisher process is restarted.  A key difference between this and configured subscriptions (#2) is that configuration requests are made to RPCs which might evaluate run-time conditions much like in (#1).  Typically direct configuration via (#2) will not go through the same sort of capacity and validation checks seen in (#1).</t>
+          </list>The first two models are described in this section. The third is described in <xref target="app.ex-if"/>. This third model will be moved into the body of this specification should the IETF community desire. In theory, all three models may be intermixed in a single deployment.</t>
+
+        <figure title="Subscription Models"
+				anchor="models"
+				align="center">
+			<artwork height="15" xml:space="preserve"><![CDATA[
+                       .---------------.
+                       |   Publisher   |
+                       '---------------'
+                         ^   ^   |   ^
+                         |   |   |   |
+       .-----Restconf----'   |   |   '-----Restconf----. 
+       |               .-----'   '-HTTP-.              |
+       V               |                V              |
+.-------------.  .------------.  .----------.  .------------. 
+| Subscriber+ |  | Operations |  | Receiver |  | Subscriber |
+| Receiver    |  |  /Config   |  '----------'  '------------'
+'-------------'  '------------'    ^     ^               ^
+       ^         (out of scope)    :     :               :
+       :             ^             :     :...Model #3....:
+    Model #1         :..Model #2...:      (out of scope)]]></artwork>
+			</figure>
+		</section>
+
+        <section title="Dynamic YANG Subscription with RESTCONF control">
+          <t>Dynamic Subscriptions for both <xref target="rfc5277bis"/> and its <xref target="yang-push"/> augmentations are configured and managed via signaling messages transported over <xref target="restconf"/>. These interactions will be accomplished via a Restconf POST into RPCs located on the Publisher.  HTTP responses codes will indicate the results of the interaction with the Publisher.  An HTTP status code of 200 is the proper response to a successful &lt;establish-subscription&gt; RPC call.  The successful &lt;establish-subscription&gt; will result in a HTTP message with returned subscription URI on a logically separate mechanism than was used for the original Restconf POST.  This mechanism would be via a parallel TCP connection in the case of HTTP 1.x, or in the case of HTTP2 via a separate HTTP stream within the HTTP connection.  When a being returned by the Publisher, failure will be indicated by error codes transported in payload, as well as the return of negotiation parameters.</t>
+
+          <t>Once established, streaming Event Notifications are then delivered via SSE for HTTP1.1 and via HTTP Data for HTTP2.</t>
+		  
+		  <section title="Call Flow for HTTP2">
+          <t>Requests to [yang-push] augmented RPCs are sent on one or more HTTP2 streams indicated by (a) in Figure 2.  Event Notifications related to a single subscription are pushed on a unique logical channel (b).  In the case below, a newly established subscription has its events pushed over HTTP2 stream (7).</t>
+        <figure title="Dynamic with HTTP2"
+				anchor="dyn-http2"
+				align="center">
+			<artwork height="30" xml:space="preserve"><![CDATA[
++------------+                                 +------------+
+| Subscriber |                                 | Publisher  |
+|HTTP2 Stream|                                 |HTTP2 Stream|
+|  (a)  (b)  |                                 |  (a)  (b)  |
++------------+                                 +------------+
+    | Restconf POST (RPC:establish-subscription)   |
+    |--------------------------------------------->|
+    |                             HTTP 200 OK (URI)|
+    |<---------------------------------------------|
+    |   (7)HTTP POST (URI)                             (7)
+    |    |--------------------------------------------->|
+    |    |                                   HTTP 200 OK|
+    |    |<---------------------------------------------|
+    |    |                       HTTP Data (event-notif)|
+    |    |<---------------------------------------------|
+    | Restconf POST (RPC:modify-subscription)      |    |
+    |--------------------------------------------->|    |
+    |    |                              HTTP 200 OK|    |
+    |<---------------------------------------------|    |
+    |    |             HTTP Data (subscription-modified)|
+    |    |<---------------------------------------------|
+    |    |                       HTTP Data (event-notif)|
+    |    |<---------------------------------------------|
+    | Restconf POST (RPC:delete-subscription)      |    |
+    |--------------------------------------------->|    |
+    |    |                              HTTP 200 OK|    |
+    |<---------------------------------------------|    |
+    |    |                  HTTP Headers (end of stream)|
+    |   (/7)<-----------------------------------------(/7)
+    |]]></artwork>
+        </figure>	
+        </section>
+
+		  <section title="Call flow for HTTP1.1">
+		  <t>Requests to [yang-push] RPCs are sent on the TCP connection indicated by (a).  Event Notifications are pushed on a separate connection (b).  This connection (b) will be used for all Event Notifications across all subscriptions.</t>
+		  
+        <figure title="Dynamic with HTTP1.1"
+				anchor="dyn-http11"
+				align="center">
+			<artwork height="29" xml:space="preserve"><![CDATA[
++--------------+                             +--------------+
+|  Subscriber  |                             |   Publisher  |
+|TCP connection|                             |TCP connection|
+|  (a)  (b)    |                             |    (a)  (b)  |
++--------------+                             +--------------+
+    | Restconf POST (RPC:establish-subscription)   |
+    |--------------------------------------------->|
+    |                             HTTP 200 OK (URI)|
+    |<---------------------------------------------|
+    |    |HTTP GET (URI)                                |
+    |    |--------------------------------------------->|
+    |    |                                   HTTP 200 OK|
+    |    |<---------------------------------------------|
+    |    |                             SSE (event-notif)|
+    |    |<---------------------------------------------|
+    | Restconf POST (RPC:modify-subscription)      |    |
+    |--------------------------------------------->|    |
+    |    |                              HTTP 200 OK|    |
+    |<---------------------------------------------|    |
+    |    |                   SSE (subscription-modified)|
+    |    |<---------------------------------------------|
+    |    |                             SSE (event-notif)|
+    |    |<---------------------------------------------|
+    | Restconf POST (RPC:delete-subscription)      |    |
+    |--------------------------------------------->|    |
+    |    |                              HTTP 200 OK|    |
+    |<---------------------------------------------|    |
+    |    |                                              |
+    |    |]]></artwork>
+        </figure>	
+        </section>		
+		
+        <section title="Configured Subscription over HTTP2">
+          <t/>
+
+          <t>With a Configured Subscription, all information needed to establish a secure relationship with that Receiver is available on the Publisher. With this information, the Publisher will establish a secure transport connection with the Receiver and then begin pushing the Event Notifications to the Receiver. Since Restconf might not exist on the Receiver, it is not desirable to require that such Event Notifications be pushed with any dependency on Restconf. Nor is there value which Restconf provides on top of HTTP. Therefore in place of Restconf, a TLS secured HTTP2 Client connection must be established with an HTTP2 Server located on the Receiver. Event Notifications will then be sent as part of an extended HTTP POST to the Receiver.</t>
+
+          <t>POST messages will be addressed to HTTP augmentation code on the Receiver capable of accepting and responding to Event Notifications. The first POST message must be a subscription-started notification. Push update notifications must not be sent until the receipt of an HTTP 200 OK for this initial notification. The 200 OK will indicate that the Receiver is ready for Event Notifications. At this point a Subscription must be allocated its own HTTP2 stream. Figure 4 depicts this message flow.</t>
+
+        <figure title="Configured over HTTP2"
+				anchor="conf-HTTP2"
+				align="center">
+			<artwork height="15" xml:space="preserve"><![CDATA[
++------------+                                 +------------+
+|  Receiver  |                                 | Publisher  |
+|HTTP2 Stream|                                 |HTTP2 Stream|
+|  (a)  (b)  |                                 |  (a)  (b)  |
++------------+                                 +------------+
+    |    HTTP Post Headers, Data (sub-start, SubID)|
+    |<---------------------------------------------|
+    | HTTP 200 OK                                  |
+    |--------------------------------------------->|
+    |    |         HTTP Post Headers, Data (event-notif)|
+    |    |<---------------------------------------------|
+    |    |                       HTTP Data (event-notif)|
+    |    |<---------------------------------------------|
+    |    |                     HTTP Data (sub-terminate)|
+    |    |<---------------------------------------------|
+    |    |HTTP 200 OK                                   |
+    |    |--------------------------------------------->|]]></artwork>
+        </figure>
+
+          <t>As the HTTP2 transport is available to the Receiver, the Publisher should:</t>
+
+          <t><list style="symbols">
+              <t>take any subscription-priority and copy it into the HTTP2 stream priority, and</t>
+
+              <t>take a subscription-dependency if it has been provided and map the HTTP2 stream for the parent subscription into the HTTP2 stream dependency.</t>
+            </list></t>
+        </section>
+      </section>
+
+      <section title="Subscription Multiplexing">
+        <t>It is possible that updates might be delivered in a different sequence than generated. Reasons for this might include (but are not limited to):</t>
+
+        <t><list style="symbols">
+            <t>replay of pushed updates</t>
+
+            <t>temporary loss of transport connectivity, with update buffering and different dequeuing priorities per Subscription</t>
+
+            <t>population, marshalling and bundling of independent Subscription Updates, and</t>
+          </list>Therefore each Event Notification will include a millisecond level timestamp to ensure that a Receiver understands the time when a that update was generated. Use of this timestamp can give an indication of the state of objects at a Publisher when state-entangled information is received across different subscriptions. The use of the latest Event Notification timestamp for a particular object update can introduce errors. So when state-entangled updates have inconsistent object values and temporally close timestamps, a Receiver might consider performing a GET to validate the current state of a Publisher.</t>
+      </section>
+
+      <section title="Encoded Subscription and Event Notification Examples">
+        <t>Transported updates will contain context data for one or more Event Notifications. Each transported Event Notification will contain several parameters:</t>
+
+        <section title="Restconf Subscription and Events over HTTP1.1">
+          <t>Subscribers can dynamically learn whether a RESTCONF server supports various types of Event or Yang datastore subscription capabilities. This is done by issuing an HTTP request OPTIONS, HEAD, or GET on the stream. Some examples building upon the Call flow for HTTP1.1 from Section 3.2.2 are:</t>
+
+          <figure>
+            <artwork><![CDATA[GET /restconf/data/ietf-restconf-monitoring:restconf-state/
+         streams/stream=yang-push HTTP/1.1
+Host: example.com
+Accept: application/yang.data+xml ]]></artwork>
+          </figure>
+
+          <t>If the server supports it, it may respond</t>
+
+          <figure>
+            <artwork><![CDATA[HTTP/1.1 200 OK
+Content-Type: application/yang.api+xml
+<stream xmlns="urn:ietf:params:xml:ns:yang:ietf-restconf-monitoring">
+            <name>yang-push</name>
+            <description>Yang push stream</description>
+            <access>
+               <encoding>xml</encoding>
+               <location>https://example.com/streams/yang-push-xml
+               </location>
+            </access>
+            <access>
+               <encoding>json</encoding>
+               <location>https://example.com/streams/yang-push-json
+               </location>
+            </access>
+         </stream>
+]]></artwork>
+          </figure>
+
+          <t>If the server does not support any form of subscription, it may respond</t>
+
+          <figure>
+            <artwork><![CDATA[HTTP/1.1 404 Not Found
+Date: Mon, 25 Apr 2012 11:10:30 GMT
+Server: example-server
+]]></artwork>
+          </figure>
+
+          <t>Subscribers can determine the URL to receive updates by sending an HTTP GET as a request for the "location" leaf with the stream list entry. The stream to use for may be selected from the Event Stream list provided in the capabilities exchange. Note that different encodings are supporting using different Event Stream locations. For example, the Subscriber might send the following request:</t>
+
+          <figure>
+            <artwork><![CDATA[GET /restconf/data/ietf-restconf-monitoring:restconf-state/
+         streams/stream=yang-push/access=xml/location HTTP/1.1
+Host: example.com
+Accept: application/yang.data+xml
+]]></artwork>
+          </figure>
+
+          <t>The Publisher might send the following response:</t>
+
+          <figure>
+            <artwork><![CDATA[HTTP/1.1 200 OK
+Content-Type: application/yang.api+xml
+   <location
+        xmlns="urn:ietf:params:xml:ns:yang:ietf-restconf-monitoring">
+        https://example.com/streams/yang-push-xml
+   </location>
+]]></artwork>
+          </figure>
+
+          <t>To subscribe and start receiving updates, the subscriber can then send an HTTP GET request for the URL returned by the Publisher in the request above. The accept header must be "text/event-stream". The Publisher uses the Server Sent Events <xref target="W3C-20150203"/> transport strategy to push filtered Event Notifications from the Event stream.</t>
+
+          <t>The Publisher MUST support individual parameters within the POST request body for all the parameters of a subscription. The only exception is the encoding, which is embedded in the URI. An example of this is:</t>
+
+          <figure>
+            <artwork><![CDATA[// subtree filter = /foo
+// periodic updates, every 5 seconds
+POST /restconf/operations/ietf-event-notifications:
+     establish-subscription HTTP/1.1
+      Host: example.com
+      Content-Type: application/yang-data+json
+
+      {
+        "ietf-event-notifications:input" : {
+          ?stream?: ?push-data"
+          ?period" : 5,
+          "xpath-filter" : ?/ex:foo[starts-with(?bar?.?some']"
+        }
+      }
+]]></artwork>
+          </figure>
+
+          <t>Should the publisher not support the requested subscription, it may reply:</t>
+
+          <figure>
+            <artwork><![CDATA[HTTP/1.1 501 Not Implemented
+Date: Mon, 23 Apr 2012 17:11:00 GMT
+Server: example-server
+Content-Type: application/yang.errors+xml
+    <errors xmlns="urn:ietf:params:xml:ns:yang:ietf-restconf">
+       <error>
+           <error-type>application</error-type>
+           <error-tag>operation-not-supported</error-tag>
+           <error-severity>error</error-severity>
+           <error-message>Xpath filters not supported</error-message>
+           <error-info>
+               <supported-subscription xmlns="urn:ietf:params:xml:ns:
+                   netconf:datastore-push:1.0">
+                   <subtree-filter/>
+               </supported-subscription>
+           </error-info>
+       </error>
+     </errors>
+
+with an equivalent JSON encoding representation of:
+
+HTTP/1.1 501 Not Implemented
+Date: Mon, 23 Apr 2012 17:11:00 GMT
+Server: example-server
+Content-Type: application/yang.errors+json
+      {
+        "ietf-restconf:errors": {
+          "error": {
+            "error-type": "protocol",
+            "error-tag": "operation-not-supported",
+            "error-message": "Xpath filters not supported."
+            "error-info": {
+               "datastore-push:supported-subscription": {
+                     "subtree-filter": [null]
+                 }
+            }
+          }
+        }
+      }
+]]></artwork>
+          </figure>
+
+          <t>The following is an example of a pushed Event Notification data for the Subscription above. It contains a subtree with root foo that contains a leaf called bar:</t>
+
+          <figure>
+            <artwork><![CDATA[XML encoding representation:
+  <?xml version="1.0" encoding="UTF-8"?>  
+  <notification xmlns="urn:ietf:params:xml:ns:yang:ietf-restconf">
+     <subscription-id xmlns="urn:ietf:params:xml:ns:restconf:
+         datastore-push:1.0">
+           my-sub
+     </subscription-id>
+     <eventTime>2015-03-09T19:14:56.23Z</eventTime>
+     <datastore-contents xmlns="urn:ietf:params:xml:ns:restconf:
+        datastore-push:1.0">
+        <foo xmlns="http://example.com/yang-push/1.0">
+          <bar>some_string</bar>
+        </foo>
+     </datastore-contents>
+  </notification>
+]]></artwork>
+          </figure>
+
+          <t>Or with the equivalent YANG over JSON encoding representation as defined in <xref target="RFC7951"/>:</t>
+
+          <figure>
+            <artwork><![CDATA[{
+  "ietf-restconf:notification": {
+    "datastore-push:subscription-id": "my-sub",
+    "eventTime": "2015-03-09T19:14:56.2Z",
+    "datastore-push:datastore-contents": {
+      "example-mod:foo": { "bar": "some_string" }
+    }
+  }
+}
+]]></artwork>
+          </figure>
+
+          <t>To modify a Subscription, the subscriber issues another POST request on the provided URI using the same subscription-id as in the original request. For example, to modify the update period to 10 seconds, the subscriber may send:</t>
+
+          <figure>
+            <artwork><![CDATA[POST /restconf/operations/ietf-event-notifications:
+      modify-subscription HTTP/1.1
+      Host: example.com
+      Content-Type: application/yang-data+json
+
+      {
+        "ietf-event-notifications:input" : {
+          ?subscription-id?: 100,
+          ?period" : 10
+        }
+      }]]></artwork>
+          </figure>
+
+          <t>To delete a Subscription, the Subscriber issues a DELETE request on the provided URI using the same subscription-id as in the original request</t>
+
+          <t/>
+        </section>
+
+        <section title="Event Notification over HTTP2">
+          <t>The basic encoding will look as below. It will consists of a JSON representation wrapped in an HTTP2 header.</t>
+
+          <figure>
+            <artwork><![CDATA[HyperText Transfer Protocol 2
+      Stream: HEADERS, Stream ID: 5
+      Header: :method: POST
+      Stream: HEADERS, Stream ID: 5
+
+{
+  "ietf-yangpush:notification": {
+    "datastore-push:subscription-id": "my-sub",
+    "eventTime": "2015-03-09T19:14:56.23Z",
+    "datastore-push:datastore-contents": {
+      "foo": { "bar": "some_string" }
+    }
+  }
+}
+]]></artwork>
+          </figure>
+
+          <t/>
+        </section>
+      </section>
+
+      <section title="Stream Discovery">
+        <t>Relevant for Dynamic Subscriptions, this will be accomplished as specified in [restconf] section 6.2. The namespace chosen will be the same as how stream names are acquired for NETCONF, and so that backwards compatibility can be maintained without replicating this information.</t>
+
+        <t>As per [restconf] section 6.3, RESTCONF clients can determine the URL for the subscription resource (to receive notifications) by sending an HTTP GET request for the "location" leaf with the stream list entry. </t>
+      </section>
+    </section>
+
+    <section title="Security Considerations">
+      <t>Subscriptions could be used to intentionally or accidentally overload the resources of a Publisher. For this reason, it is important that the Publisher has the ability to prioritize the establishment and push of Event Notifications where there might be resource exhaust potential. In addition, a server needs to be able to suspend existing Subscriptions when needed. When this occurs, the subscription status must be updated accordingly and the Receivers notified.</t>
+
+      <t>A Subscription could be used to attempt retrieve information for which a Receiver has no authorized access. Therefore it is important that data pushed via a Subscription is authorized equivalently with regular data retrieval operations. Data being pushed to a Receiver needs therefore to be filtered accordingly, just like if the data were being retrieved on-demand. The Netconf Authorization Control Model <xref target="RFC6536"/> applies even though the transport is not NETCONF.</t>
+
+      <t>One or more Publishers of Configured Subscriptions could be used to overwhelm a Receiver which doesn't even support Subscriptions.  There are two protections here.  First Event Notifications for Configured Subscriptions MUST only be transmittable over Encrypted transports.  Clients which do not want pushed Event Notifications need only terminate or refuse any transport sessions from the Publisher.  Second, the HTTP transport augmentation on the Receiver must send an HTTP 200 OK to a subscription started notification before the Publisher starts streaming any events.</t>
+
+      <t>One or more Publishers could overwhelm a Receiver which is unable to control or handle the volume of Event Notifications received.  In deployments where this might be a concern, HTTP2 transport such as HTTP2) should be selected.</t>
+
+    </section>
+
+    <section title="Acknowledgments">
+      <t>We wish to acknowledge the helpful contributions, comments, and suggestions that were received from: Susan Hares, Tim Jenkins, Balazs Lengyel, Kent Watsen, Michael Scharf, and Guangying Zheng.</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      <?rfc include="reference.RFC.2119"?>
+
+      <?rfc include="reference.RFC.6520"?>
+
+      <?rfc include="reference.RFC.6536"?>
+
+      <?rfc include="reference.RFC.7540"?>
+
+      <?rfc include="reference.RFC.7923"?>
+	  
+	  <?rfc include="reference.RFC.7951"?>
+
+      <reference anchor="restconf"
+                 target="https://datatracker.ietf.org/doc/draft-ietf-netconf-restconf/">
+        <front>
+          <title>RESTCONF Protocol</title>
+
+          <author fullname="Andy Bierman" initials="A" surname="Bierman"/>
+
+          <author fullname="Martin Bjorklund" initials="M" surname="Bjorklund"/>
+
+          <author fullname="Kent Watsen" initials="K" surname="Watsen"/>
+
+          <date day="16" month="March" year="2016"/>
+        </front>
+      </reference>
+
+      <?rfc ?>
+    </references>
+
+    <references title="Informative References">
+      <reference anchor="yang-push"
+                 target="https://datatracker.ietf.org/doc/draft-ietf-netconf-yang-push/">
+        <front>
+          <title>Subscribing to YANG datastore push updates</title>
+
+          <author fullname="Alexander Clemm" initials="A" surname="Clemm">
+            <organization>Cisco</organization>
+          </author>
+
+          <author fullname="Eric Voit" initials="E" surname="Voit">
+            <organization>Cisco</organization>
+          </author>
+		  
+          <author fullname="Alberto Gonzalez Prieto" initials="A"
+                  surname="Gonzalez Prieto">
+            <organization>Cisco</organization>
+          </author>
+
+          <author fullname="Ambika Prasad Tripathy" initials="A"
+                  surname="Prasad Tripathy">
+            <organization>Cisco</organization>
+          </author>
+
+          <author fullname="Einar Nilsen-Nygaard" initials="E"
+                  surname="Nilsen-Nygaard">
+            <organization>Cisco</organization>
+          </author>
+
+          <date day="6" month="June" year="2016"/>
+        </front>
+      </reference>
+
+      <reference anchor="rfc5277bis"
+                 target="https://datatracker.ietf.org/doc/draft-ietf-netconf-rfc5277bis/">
+        <front>
+          <title>NETCONF Event Notifications</title>
+
+          <author fullname="Alberto Gonzalez Prieto" initials="A"
+                  surname="Gonzalez Prieto">
+            <organization>Cisco</organization>
+          </author>
+
+          <author fullname="Alexander Clemm" initials="A" surname="Clemm">
+            <organization>Cisco</organization>
+          </author>
+
+          <author fullname="Eric Voit" initials="E" surname="Voit">
+            <organization>Cisco</organization>
+          </author>
+
+          <author fullname="Ambika Prasad Tripathy" initials="A"
+                  surname="Prasad Tripathy">
+            <organization>Cisco</organization>
+          </author>
+
+          <author fullname="Einar Nilsen-Nygaard" initials="E"
+                  surname="Nilsen-Nygaard">
+            <organization>Cisco</organization>
+          </author>
+		  
+          <date day="11" month="September" year="2016"/>
+        </front>
+      </reference>
+
+
+      <reference anchor="W3C-20150203"
+                 target="https://www.w3.org/TR/2015/REC-eventsource-20150203/">
+        <front>
+          <title>Server-Sent Events, World Wide Web Consortium CR
+          CR-eventsource-20121211</title>
+
+          <author fullname="I Hickson">
+            <organization/>
+          </author>
+
+          <date month="February" year="2015"/>
+        </front>
+      </reference>
+
+      <reference anchor="call-home"
+                 target="https://tools.ietf.org/html/draft-ietf-netconf-call-home-17">
+        <front>
+          <title>NETCONF Call Home and RESTCONF Call Home</title>
+
+          <author fullname="Kent Watsen" initials="K" surname="Watsen">
+            <organization/>
+          </author>
+
+          <date day="22" month="December" year="2015"/>
+        </front>
+      </reference>
+    </references>
+
+    <section anchor="app.ex-if"
+             title="Proxy YANG Subscription when the Subscriber and Receiver are different">
+      <t>The properties of Dynamic and Configured Subscriptions can be combined to enable deployment models where the Subscriber and Receiver are different. Such separation can be useful with some combination of:</t>
+
+      <t><list style="symbols">
+          <t>An operator does not want the subscription to be dependent on the maintenance of transport level keep-alives. (Transport independence provides different scalability characteristics.)</t>
+
+          <t>There is not a transport session binding, and a transient Subscription needs to survive in an environment where there is unreliable connectivity with the Receiver and/or Subscriber.</t>
+
+          <t>An operator wants the Publisher to include highly restrictive capacity management and Subscription security mechanisms outside of domain of existing operational or programmatic interfaces.</t>
+		  
+        </list>To build a Proxy Subscription, first the necessary information must be signaled as part of the &lt;establish-subscription&gt;. Using this set of Subscriber provided information; the same process described within section 3 will be followed. There is one exception. Only when an HTTP status code of 200 comes back from the receiver, will it inform the Subscriber of Subscription establishment success via its Restconf connection.</t>
+
+      <t/>
+
+      <t>After a successful establishment, if the Subscriber wishes to track the state of Receiver subscriptions, it may choose to place a separate on-change Subscription into the "Subscriptions" subtree of the YANG Datastore on the Publisher.</t>
+
+      <t/>
+    </section>
+
+    <section title="End-to-End Deployment Guidance">
+      <t>Several technologies are expected to be seen within a deployment to achieve security and ease-of-use requirements. These are not necessary for an implementation of this specification, but will be useful to consider when considering the operational context.</t>
+
+      <t/>
+
+      <section title="Call Home">
+        <t>Pub/Sub implementations should have the ability to transparently incorporate <xref target="call-home"/> so that secure TLS connections can originate from the desired device.</t>
+
+        <t/>
+      </section>
+
+      <section title="TLS Heartbeat">
+        <t>HTTP sessions might not quickly allow a Subscriber to recognize when the communication path has been lost from the Publisher. To recognize this, it is possible for a Receiver to establish a TLS heartbeat <xref target="RFC6520"/>. In the case where a TLS heartbeat is included, it should be sent just from Receiver to Publisher. Loss of the heartbeat should result in any Subscription related TCP sessions between those endpoints being torn down.  The subscription can then attempt to re-establish. </t>
+
+        <t/>
+      </section>
+    </section>
+
+    <section title="Issues being worked and resolved">
+      <t>(To be removed by RFC editor prior to publication)</t>
+
+      <section title="Unresolved Issues">
+        <t/>
+        <t>RT3 - Do we include 3rd party signaled subscriptions within models that need to be supported generically, or for a particular type of transport.</t>
+		
+		<t>RT10 - Right now the examples show a YANG timestamp at the hundredths of a second level.   But the yang-push draft is at seconds.  And the requirements show at least milliseconds (if not more).</t>
+
+      </section>
+
+      <section title="Agreement in principal ">
+
+        <t>RT4 - Need to add into document examples of 5277bis Event streams. Document only includes yang-push examples at this point.</t>
+		
+        <t>RT6 - We need to define encodings of rfc5277bis notifications.</t>
+
+      </section>
+
+      <section title="Resolved Issues">
+        <t/>
+        <t>RT1 - Integration specifics for Restconf capability discovery on different types of Streams</t>
+		
+        <t>RT2 - In what way to we position Event notifications model in this document vs. current solution in Restconf.</t>		
+        
+		<t>RT5 - Doesn't make sense to use Restconf for Configured subscriptions. HTTP will be used.</t>
+		
+        <t>RT7 - HTTP native option doesn't currently use SSE. But we should evaluate moving to that as possible. It will make development integration easier and more consistent.</t>
+
+		<t>RT8 - Once SSE starts, there will be no more Restconf interpretation of further signaling upon the connection. It is unclear how this can be made to work with modify and delete subscription. If it cannot, a method of sending events without SSE will be needed, although this would diverge from the existing Restconf mechanisms</t>
+		
+		<t>RT9 - For static subscriptions, perhaps we can use Restconf call home to originate an SSE connection. This assume RT8 &amp; RT2 can be resolved with SSE.</t>
+
+        <t/>
+      </section>
+    </section>
+	
+	<section title="Changes between revisions">
+      <t>(To be removed by RFC editor prior to publication)</t>
+	  
+	  <t>v00 - v01</t>
+	  <t><list style="symbols">
+			<t>Removed the ability for more than one subscription to go to a single HTTP2 stream.</t>
+			<t>Updated call flows.  Extensively.</t>
+			<t>SSE only used with Restconf and HTTP1.1 Dynamic Subscriptions</t>
+			<t>HTTP is not used to determine that a Receiver has gone silent and is not Receiving Event Notifications</t>
+			<t>Many clean-ups of wording and terminology</t>
+		</list>
+	  </t>
+	  
+	</section>
+  </back>
+</rfc>
