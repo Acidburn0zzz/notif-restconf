@@ -1,17 +1,15 @@
-PRE-DRAFT version, last generated 7-May-2018
+PRE-DRAFT version, last generated 18-May-2018
 
 
 
 NETCONF                                                          E. Voit
 Internet-Draft                                         E. Nilsen-Nygaard
 Intended status: Standards Track                           Cisco Systems
-Expires: November 5, 2018                                       A. Clemm
+Expires: November 19, 2018                                      A. Clemm
                                                                   Huawei
-                                                      A. Gonzalez Prieto
-                                                                  VMWare
                                                               A. Bierman
                                                                YumaWorks
-                                                             May 4, 2018
+                                                            May 18, 2018
 
 
           RESTCONF and HTTP Transport for Event Notifications
@@ -39,7 +37,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on November 5, 2018.
+   This Internet-Draft will expire on November 19, 2018.
 
 Copyright Notice
 
@@ -50,16 +48,16 @@ Copyright Notice
    Provisions Relating to IETF Documents
    (https://trustee.ietf.org/license-info) in effect on the date of
    publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
 
 
 
-Voit, et al.            Expires November 5, 2018                [Page 1]
+Voit, et al.            Expires November 19, 2018               [Page 1]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
 
-   carefully, as they describe your rights and restrictions with respect
-   to this document.  Code Components extracted from this document must
    include Simplified BSD License text as described in Section 4.e of
    the Trust Legal Provisions and are provided without warranty as
    described in the Simplified BSD License.
@@ -80,17 +78,18 @@ Table of Contents
    5.  QoS Treatment . . . . . . . . . . . . . . . . . . . . . . . .  12
    6.  Mandatory JSON and datastore support  . . . . . . . . . . . .  12
    7.  Notification Messages . . . . . . . . . . . . . . . . . . . .  12
-   8.  YANG module . . . . . . . . . . . . . . . . . . . . . . . . .  12
-   9.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  15
-   10. Security Considerations . . . . . . . . . . . . . . . . . . .  15
-   11. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  16
-   12. References  . . . . . . . . . . . . . . . . . . . . . . . . .  16
-     12.1.  Normative References . . . . . . . . . . . . . . . . . .  16
-     12.2.  Informative References . . . . . . . . . . . . . . . . .  18
+   8.  YANG Tree . . . . . . . . . . . . . . . . . . . . . . . . . .  12
+   9.  YANG module . . . . . . . . . . . . . . . . . . . . . . . . .  13
+   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  15
+   11. Security Considerations . . . . . . . . . . . . . . . . . . .  16
+   12. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  17
+   13. References  . . . . . . . . . . . . . . . . . . . . . . . . .  17
+     13.1.  Normative References . . . . . . . . . . . . . . . . . .  17
+     13.2.  Informative References . . . . . . . . . . . . . . . . .  19
    Appendix A.  RESTCONF over GRPC . . . . . . . . . . . . . . . . .  19
    Appendix B.  Examples . . . . . . . . . . . . . . . . . . . . . .  19
-     B.1.  Dynamic Subscriptions . . . . . . . . . . . . . . . . . .  19
-       B.1.1.  Establishing Dynamic Subscriptions  . . . . . . . . .  19
+     B.1.  Dynamic Subscriptions . . . . . . . . . . . . . . . . . .  20
+       B.1.1.  Establishing Dynamic Subscriptions  . . . . . . . . .  20
        B.1.2.  Modifying Dynamic Subscriptions . . . . . . . . . . .  22
        B.1.3.  Deleting Dynamic Subscriptions  . . . . . . . . . . .  24
      B.2.  Configured Subscriptions  . . . . . . . . . . . . . . . .  25
@@ -109,7 +108,8 @@ Table of Contents
 
 
 
-Voit, et al.            Expires November 5, 2018                [Page 2]
+
+Voit, et al.            Expires November 19, 2018               [Page 2]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -165,7 +165,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018                [Page 3]
+Voit, et al.            Expires November 19, 2018               [Page 3]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -221,7 +221,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018                [Page 4]
+Voit, et al.            Expires November 19, 2018               [Page 4]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -255,6 +255,11 @@ Internet-Draft               RESTCONF-Notif                     May 2018
             kill-subscription       kill-subscription-error
             resynch-subscription    resynch-subscription-error
 
+   Each error identity will be inserted as the "error-app-tag" using
+   JSON encoding following the form <modulename>:<identityname>.  An
+   example of such as valid encoding would be "ietf-subscribed-
+   notifications:no-such-subscription".
+
    o  In case of error responses to an "establish-subscription" or
       "modify-subscription" request there is the option of including an
       "error-info" node.  This node may contain hints for parameter
@@ -272,12 +277,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-
-
-
-
-
-Voit, et al.            Expires November 5, 2018                [Page 5]
+Voit, et al.            Expires November 19, 2018               [Page 5]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -317,7 +317,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
    subscription identifier which uniquely identifies a subscription, as
    well as a URI which uniquely identifies the location of subscription
    on the publisher.  This URI is defined via the "uri" leaf the Data
-   Model in Section 8.
+   Model in Section 9.
 
    An HTTP POST is then sent on a logically separate HTTP2 stream (b) to
    the URI on the publisher.  This initiates to initiate the flow of
@@ -333,7 +333,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018                [Page 6]
+Voit, et al.            Expires November 19, 2018               [Page 6]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -389,7 +389,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018                [Page 7]
+Voit, et al.            Expires November 19, 2018               [Page 7]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -414,7 +414,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
    identifier which uniquely identifies a subscription, as well as a URI
    which uniquely identifies the location of subscription on the
    publisher (b).  This URI is defined via the "uri" leaf the Data Model
-   in Section 8.
+   in Section 9.
 
    An HTTP POST is then sent on a logically separate TCP connection (b)
    to the URI on the publisher.  This initiates to initiate the flow of
@@ -445,7 +445,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018                [Page 8]
+Voit, et al.            Expires November 19, 2018               [Page 8]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -501,7 +501,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018                [Page 9]
+Voit, et al.            Expires November 19, 2018               [Page 9]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -557,7 +557,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 10]
+Voit, et al.            Expires November 19, 2018              [Page 10]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -613,7 +613,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 11]
+Voit, et al.            Expires November 19, 2018              [Page 11]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -656,23 +656,34 @@ Internet-Draft               RESTCONF-Notif                     May 2018
    Notification messages transported over HTTP will be encoded using
    one-way operation schema defined within [RFC5277], section 4.
 
-8.  YANG module
+8.  YANG Tree
+
+   The YANG model defined in Section 9 has one leaf augmented into four
+   places of [I-D.draft-ietf-netconf-subscribed-notifications], plus two
+   identities.  As the resulting full tree is large, it will only be
+   inserted at later stages of this document.
+
+
+
+
+
+
+
+Voit, et al.            Expires November 19, 2018              [Page 12]
+
+Internet-Draft               RESTCONF-Notif                     May 2018
+
+
+9.  YANG module
 
    This module references
    [I-D.draft-ietf-netconf-subscribed-notifications].
 
+ <CODE BEGINS> file "ietf-http-subscribed-notifications@2018-05-01.yang"
  module ietf-http-subscribed-notifications {
    yang-version 1.1;
    namespace
      "urn:ietf:params:xml:ns:yang:ietf-http-subscribed-notifications";
-
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 12]
-
-Internet-Draft               RESTCONF-Notif                     May 2018
-
 
    prefix hsn;
 
@@ -711,6 +722,14 @@ Internet-Draft               RESTCONF-Notif                     May 2018
      (https://trustee.ietf.org/license-info).
 
      This version of this YANG module is part of RFC XXXX; see the RFC
+
+
+
+Voit, et al.            Expires November 19, 2018              [Page 13]
+
+Internet-Draft               RESTCONF-Notif                     May 2018
+
+
      itself for full legal notices.";
 
    revision 2018-05-01 {
@@ -722,14 +741,6 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
    identity http2 {
      base sn:transport;
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 13]
-
-Internet-Draft               RESTCONF-Notif                     May 2018
-
-
      base sn:inline-address;
      base sn:configurable-encoding;
      description
@@ -767,6 +778,14 @@ Internet-Draft               RESTCONF-Notif                     May 2018
    augment "/sn:subscriptions/sn:subscription/sn:target" {
      description
        "This augmentation allows HTTP specific parameters to be
+
+
+
+Voit, et al.            Expires November 19, 2018              [Page 14]
+
+Internet-Draft               RESTCONF-Notif                     May 2018
+
+
         exposed for a subscription.";
      uses uri;
    }
@@ -777,14 +796,6 @@ Internet-Draft               RESTCONF-Notif                     May 2018
        part of the notification that a subscription has started.";
      uses uri;
    }
-
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 14]
-
-Internet-Draft               RESTCONF-Notif                     May 2018
-
 
    augment "/sn:subscription-modified/sn:target" {
      description
@@ -807,8 +818,9 @@ Internet-Draft               RESTCONF-Notif                     May 2018
  */
 
  }
+ <CODE ENDS>
 
-9.  IANA Considerations
+10.  IANA Considerations
 
    This document registers the following namespace URI in the "IETF XML
    Registry" [RFC3688]:
@@ -821,27 +833,28 @@ Internet-Draft               RESTCONF-Notif                     May 2018
    Names" registry [RFC6020]:
 
    Name: ietf-http-subscribed-notifications
+
+
+
+
+Voit, et al.            Expires November 19, 2018              [Page 15]
+
+Internet-Draft               RESTCONF-Notif                     May 2018
+
+
    Namespace: urn:ietf:params:xml:ns:yang:ietf-http-subscribed-
    notifications
    Prefix: hsn
    Reference: RFC XXXX: RESTCONF and HTTP Transport for Event
    Notifications
 
-10.  Security Considerations
+11.  Security Considerations
 
    The YANG module specified in this document defines a schema for data
    that is designed to be accessed via network management transports
    such as NETCONF [RFC6241] or RESTCONF [RFC8040].  The lowest NETCONF
    layer is the secure transport layer, and the mandatory-to-implement
    secure transport is Secure Shell (SSH) [RFC6242].  The lowest
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 15]
-
-Internet-Draft               RESTCONF-Notif                     May 2018
-
-
    RESTCONF layer is HTTPS, and the mandatory-to-implement secure
    transport is TLS [RFC5246].
 
@@ -877,26 +890,26 @@ Internet-Draft               RESTCONF-Notif                     May 2018
    The NETCONF Authorization Control Model [RFC6536] SHOULD be used to
    control and restrict authorization of subscription configuration.
 
-11.  Acknowledgments
+
+
+
+Voit, et al.            Expires November 19, 2018              [Page 16]
+
+Internet-Draft               RESTCONF-Notif                     May 2018
+
+
+12.  Acknowledgments
 
    We wish to acknowledge the helpful contributions, comments, and
    suggestions that were received from: Susan Hares, Tim Jenkins, Balazs
    Lengyel, Kent Watsen, Michael Scharf, and Guangying Zheng.
 
-12.  References
+13.  References
 
-12.1.  Normative References
+13.1.  Normative References
 
    [GRPC]     "RPC framework that runs over HTTP2", August 2017,
               <https://grpc.io/>.
-
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 16]
-
-Internet-Draft               RESTCONF-Notif                     May 2018
-
 
    [I-D.draft-ietf-netconf-subscribed-notifications]
               Voit, E., Clemm, A., Gonzalez Prieto, A., Tripathy, A.,
@@ -934,6 +947,13 @@ Internet-Draft               RESTCONF-Notif                     May 2018
               DOI 10.17487/RFC6020, October 2010,
               <https://www.rfc-editor.org/info/rfc6020>.
 
+
+
+Voit, et al.            Expires November 19, 2018              [Page 17]
+
+Internet-Draft               RESTCONF-Notif                     May 2018
+
+
    [RFC6241]  Enns, R., Ed., Bjorklund, M., Ed., Schoenwaelder, J., Ed.,
               and A. Bierman, Ed., "Network Configuration Protocol
               (NETCONF)", RFC 6241, DOI 10.17487/RFC6241, June 2011,
@@ -942,17 +962,6 @@ Internet-Draft               RESTCONF-Notif                     May 2018
    [RFC6242]  Wasserman, M., "Using the NETCONF Protocol over Secure
               Shell (SSH)", RFC 6242, DOI 10.17487/RFC6242, June 2011,
               <https://www.rfc-editor.org/info/rfc6242>.
-
-
-
-
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 17]
-
-Internet-Draft               RESTCONF-Notif                     May 2018
-
 
    [RFC6520]  Seggelmann, R., Tuexen, M., and M. Williams, "Transport
               Layer Security (TLS) and Datagram Transport Layer Security
@@ -989,7 +998,19 @@ Internet-Draft               RESTCONF-Notif                     May 2018
               eventsource-20121211", February 2015,
               <https://www.w3.org/TR/2015/REC-eventsource-20150203/>.
 
-12.2.  Informative References
+
+
+
+
+
+
+
+Voit, et al.            Expires November 19, 2018              [Page 18]
+
+Internet-Draft               RESTCONF-Notif                     May 2018
+
+
+13.2.  Informative References
 
    [I-D.draft-ietf-netconf-netconf-event-notifications]
               Clemm, Alexander., Voit, Eric., Gonzalez Prieto, Alberto.,
@@ -997,18 +1018,6 @@ Internet-Draft               RESTCONF-Notif                     May 2018
               event notifications", May 2018,
               <https://datatracker.ietf.org/doc/
               draft-ietf-netconf-netconf-event-notifications/>.
-
-
-
-
-
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 18]
-
-Internet-Draft               RESTCONF-Notif                     May 2018
-
 
    [I-D.draft-ietf-netconf-nmda-restconf]
               Bjorklund, M., Schoenwaelder, J., Shafer, P., Watsen, K.,
@@ -1048,6 +1057,15 @@ Appendix B.  Examples
    This section is non-normative.  To allow easy comparison, this
    section mirrors the functional examples shown with NETCONF over XML
    within [I-D.draft-ietf-netconf-netconf-event-notifications].  In
+
+
+
+
+Voit, et al.            Expires November 19, 2018              [Page 19]
+
+Internet-Draft               RESTCONF-Notif                     May 2018
+
+
    addition, HTTP2 vs HTTP1.1 headers are not shown as the contents of
    the JSON encoded objects are identical within.
 
@@ -1058,14 +1076,6 @@ B.1.1.  Establishing Dynamic Subscriptions
    The following figure shows two successful "establish-subscription"
    RPC requests as per
    [I-D.draft-ietf-netconf-subscribed-notifications].  The first request
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 19]
-
-Internet-Draft               RESTCONF-Notif                     May 2018
-
-
    is given a subscription identifier of 22, the second, an identifier
    of 23.
 
@@ -1107,17 +1117,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-
-
-
-
-
-
-
-
-
-
-Voit, et al.            Expires November 5, 2018               [Page 20]
+Voit, et al.            Expires November 19, 2018              [Page 20]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1173,7 +1173,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 21]
+Voit, et al.            Expires November 19, 2018              [Page 21]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1186,7 +1186,8 @@ Internet-Draft               RESTCONF-Notif                     May 2018
                  "error-type": "application",
                  "error-tag": "operation-failed",
                  "error-severity": "error",
-                 "error-app-tag": "dscp-unavailable"
+                 "error-app-tag":
+                     "ietf-subscribed-notifications:dscp-unavailable"
                }
              ]
            }
@@ -1228,8 +1229,7 @@ B.1.2.  Modifying Dynamic Subscriptions
 
 
 
-
-Voit, et al.            Expires November 5, 2018               [Page 22]
+Voit, et al.            Expires November 19, 2018              [Page 22]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1285,7 +1285,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 23]
+Voit, et al.            Expires November 19, 2018              [Page 23]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1305,7 +1305,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
                "error-tag": "operation-failed",
                "error-severity": "error",
                "error-app-tag": {
-                 "ietf-yang-push": "period-unsupported"
+                 "ietf-yang-push": "ietf-yang-push:period-unsupported"
                },
                "error-info": {
                  "ietf-yang-push":
@@ -1341,7 +1341,7 @@ B.1.3.  Deleting Dynamic Subscriptions
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 24]
+Voit, et al.            Expires November 19, 2018              [Page 24]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1360,7 +1360,8 @@ Internet-Draft               RESTCONF-Notif                     May 2018
                "error-type": "application",
                "error-tag": "operation-failed",
                "error-severity": "error",
-               "error-app-tag": "no-such-subscription"
+               "error-app-tag":
+                  "ietf-subscribed-notifications:no-such-subscription"
              ]
            }
          }
@@ -1396,8 +1397,7 @@ B.2.1.  Creating Configured Subscriptions
 
 
 
-
-Voit, et al.            Expires November 5, 2018               [Page 25]
+Voit, et al.            Expires November 19, 2018              [Page 25]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1453,7 +1453,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 26]
+Voit, et al.            Expires November 19, 2018              [Page 26]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1509,7 +1509,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 27]
+Voit, et al.            Expires November 19, 2018              [Page 27]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1565,7 +1565,7 @@ B.2.2.  Modifying Configured Subscriptions
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 28]
+Voit, et al.            Expires November 19, 2018              [Page 28]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1621,7 +1621,7 @@ Internet-Draft               RESTCONF-Notif                     May 2018
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 29]
+Voit, et al.            Expires November 19, 2018              [Page 29]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1677,7 +1677,7 @@ B.2.3.  Deleting Configured Subscriptions
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 30]
+Voit, et al.            Expires November 19, 2018              [Page 30]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1733,7 +1733,7 @@ B.3.1.  subscription-started and subscription-modified
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 31]
+Voit, et al.            Expires November 19, 2018              [Page 31]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1789,7 +1789,7 @@ B.3.3.  subscription-terminated and subscription-suspended
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 32]
+Voit, et al.            Expires November 19, 2018              [Page 32]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1845,7 +1845,7 @@ Appendix C.  Changes between revisions
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 33]
+Voit, et al.            Expires November 19, 2018              [Page 33]
 
 Internet-Draft               RESTCONF-Notif                     May 2018
 
@@ -1879,12 +1879,6 @@ Authors' Addresses
    Email: ludwig@clemm.org
 
 
-   Alberto Gonzalez Prieto
-   VMWare
-
-   Email: agonzalezpri@vmware.com
-
-
    Andy Bierman
    YumaWorks
 
@@ -1901,4 +1895,10 @@ Authors' Addresses
 
 
 
-Voit, et al.            Expires November 5, 2018               [Page 34]
+
+
+
+
+
+
+Voit, et al.            Expires November 19, 2018              [Page 34]
