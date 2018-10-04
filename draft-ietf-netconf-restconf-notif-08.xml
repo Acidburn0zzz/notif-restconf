@@ -55,7 +55,7 @@
       </address>
     </author>
 
-    <date day="3" month="October" year="2018"/>
+    <date day="4" month="October" year="2018"/>
 
     <area>Operations &amp; Management</area>
 
@@ -615,7 +615,7 @@ POST /restconf/operations/subscriptions:establish-subscription
 {
    "ietf-subscribed-notifications:input": {
       "stream": "NETCONF",
-      "stream-xpath-filter": "/ex:foo/",
+      "stream-xpath-filter": "/ds:foo/",
       "dscp": "10"
    }
 }
@@ -636,11 +636,11 @@ HTTP status code - 200
              ]]></artwork>
           </figure>
 
-          <t>Upon receipt of the successful response, the subscriber POSTs to the provided URI to start the flow of notification messages.  When the publisher receives this, the subscription is moved to the active state (c).</t>
+          <t>Upon receipt of the successful response, the subscriber does a GET the provided URI to start the flow of notification messages.  When the publisher receives this, the subscription is moved to the active state (c).</t>
 
           <figure align="center" anchor="positive-establish-post" title="establish-subscription subsequent POST">
             <artwork><![CDATA[
-POST /restconf/operations/subscriptions/22
+GET /restconf/operations/subscriptions/22
 
              ]]></artwork>
           </figure>
@@ -710,12 +710,11 @@ POST /restconf/operations/subscriptions:modify-subscription
 {
  "ietf-subscribed-notifications:input": {
     "id": "23",
-    "ietf-yang-push:datastore-xpath-filter":
-      "/interfaces-state/interface/oper-status"
-      "ietf-yang-push:periodic": {
+    "ietf-yang-push:datastore-xpath-filter": "/ds:foo/ds:bar",
+    "ietf-yang-push:periodic": {
        "ietf-yang-push:period": "500"
-      }
- }
+    }
+  }
 }
 
             ]]></artwork>
@@ -896,7 +895,7 @@ POST /restconf/operations/subscriptions:establish-subscription
 {
    "ietf-subscribed-notifications:input": {
       "stream": "NETCONF",
-      "stream-xpath-filter": "/ietf-vrrp:/vrrp-protocol-error-event[protocol-error-reason='checksum-error']/",
+      "stream-xpath-filter": "/ietf-vrrp:vrrp-protocol-error-event[protocol-error-reason='checksum-error']/",
    }
 }
          ]]></artwork>
@@ -914,7 +913,7 @@ POST /restconf/operations/subscriptions:modify-subscription
 {
    "ietf-subscribed-notifications:input": {
       "stream": "NETCONF",
-      "stream-xpath-filter": "/ietf-vrrp:/vrrp-protocol-error-event/",
+      "stream-subtree-filter": "/ietf-vrrp:vrrp-protocol-error-event/",
    }
 }
          ]]></artwork>
@@ -932,8 +931,9 @@ POST /restconf/operations/subscriptions:modify-subscription
       <t>v07 - v08</t>
           <t><list style="symbols">
             <t>Aligned with RESTCONF mechanism.</t>
-            <t>Removed augment of subscription-started from YANG model.</t>
-            <t>Appendix A.3 for filter example.</t>
+            <t>YANG model: removed augment of subscription-started, added restconf transport.</t>
+            <t>Tweaked Appendix A.1 to match draft-ietf-netconf-netconf-event-notifications-13.</t>
+            <t>Added Appendix A.3 for filter example.</t>
         </list>
       </t>
       
