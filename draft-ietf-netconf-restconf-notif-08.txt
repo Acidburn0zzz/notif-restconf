@@ -89,12 +89,13 @@ Table of Contents
        A.1.2.  Modifying Dynamic Subscriptions . . . . . . . . . . .  17
        A.1.3.  Deleting Dynamic Subscriptions  . . . . . . . . . . .  18
      A.2.  Subscription State Notifications  . . . . . . . . . . . .  19
-       A.2.1.  subscription-started and subscription-modified  . . .  19
+       A.2.1.  subscription-modified . . . . . . . . . . . . . . . .  19
        A.2.2.  subscription-completed, subscription-resumed, and
                replay-complete . . . . . . . . . . . . . . . . . . .  20
        A.2.3.  subscription-terminated and subscription-suspended  .  20
-   Appendix B.  Changes between revisions  . . . . . . . . . . . . .  21
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  22
+     A.3.  Filter Example  . . . . . . . . . . . . . . . . . . . . .  21
+   Appendix B.  Changes between revisions  . . . . . . . . . . . . .  22
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  24
 
 1.  Introduction
 
@@ -105,7 +106,6 @@ Table of Contents
    [I-D.ietf-netconf-yang-push].  This document provides a transport
    specification for dynamic subscriptions over RESTCONF [RFC8040].
    Driving these requirements is [RFC7923].
-
 
 
 
@@ -455,7 +455,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
    This module references
    [I-D.draft-ietf-netconf-subscribed-notifications].
 
-<CODE BEGINS> file "ietf-restconf-subscribed-notifications@2018-09-12.yang"
+<CODE BEGINS> file "ietf-restconf-subscribed-notifications@2018-10-03.yang"
 module ietf-restconf-subscribed-notifications {
   yang-version 1.1;
   namespace
@@ -508,11 +508,18 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
     itself for full legal notices.";
 
-  revision 2018-09-12 {
+  revision 2018-10-03 {
     description
       "Initial version";
     reference
       "RFC XXXX: RESTCONF Transport for Event Notifications";
+  }
+
+  identity restconf {
+    base sn:transport;
+    description
+      "RESTCONF is used as transport for notification messages and state
+       change notifications.";
   }
 
   grouping uri {
@@ -528,28 +535,21 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
   augment "/sn:establish-subscription/sn:output" {
     description
-      "This augmentation allows HTTP specific parameters for a
+      "This augmentation allows RESTCONF specific parameters for a
       response to a publisher's subscription request.";
     uses uri;
   }
 
   augment "/sn:subscriptions/sn:subscription" {
     description
-      "This augmentation allows HTTP specific parameters to be
+      "This augmentation allows RESTCONF specific parameters to be
        exposed for a subscription.";
-    uses uri;
-  }
-
-  augment "/sn:subscription-started" {
-    description
-      "This augmentation allows HTTP specific parameters to be included
-      part of the notification that a subscription has started.";
     uses uri;
   }
 
   augment "/sn:subscription-modified" {
     description
-      "This augmentation allows HTTP specific parameters to be included
+      "This augmentation allows RESTCONF specific parameters to be included
       part of the notification that a subscription has been modified.";
     uses uri;
   }
@@ -747,6 +747,16 @@ Internet-Draft               RESTCONF-Notif                 October 2018
               DOI 10.17487/RFC7923, June 2016,
               <https://www.rfc-editor.org/info/rfc7923>.
 
+   [RFC8347]  Liu, X., Ed., Kyparlis, A., Parikh, R., Lindem, A., and M.
+              Zhang, "A YANG Data Model for the Virtual Router
+              Redundancy Protocol (VRRP)", RFC 8347,
+              DOI 10.17487/RFC8347, March 2018,
+              <https://www.rfc-editor.org/info/rfc8347>.
+
+   [XPATH]    Clark, J. and S. DeRose, "XML Path Language (XPath)
+              Version 1.0", November 1999,
+              <http://www.w3.org/TR/1999/REC-xpath-19991116>.
+
 Appendix A.  Examples
 
    This section is non-normative.  To allow easy comparison, this
@@ -764,16 +774,6 @@ A.1.1.  Establishing Dynamic Subscriptions
    [I-D.draft-ietf-netconf-subscribed-notifications].  The first request
    is given a subscription identifier of 22, the second, an identifier
    of 23.
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1051,9 +1051,9 @@ A.2.  Subscription State Notifications
    the definitions within
    [I-D.draft-ietf-netconf-subscribed-notifications]).
 
-A.2.1.  subscription-started and subscription-modified
+A.2.1.  subscription-modified
 
-   A "subscription-started" encoded in JSON would look like:
+   A "subscription-modified" encoded in JSON would look like:
 
 
 
@@ -1069,9 +1069,9 @@ Internet-Draft               RESTCONF-Notif                 October 2018
    {
      "ietf-restconf:notification" : {
        "eventTime": "2007-09-01T10:00:00Z",
-       "ietf-subscribed-notifications:subscription-started": {
+       "ietf-subscribed-notifications:subscription-modified": {
          "id": "39",
-         "transport": "HTTP2",
+         "transport": "RESTCONF",
          "stream-xpath-filter": "/ex:foo",
          "stream": {
             "ietf-netconf-subscribed-notifications" : "NETCONF"
@@ -1080,10 +1080,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
      }
    }
 
-      Figure 12: subscription-started subscription state notification
-
-   The "subscription-modified" is identical to Figure 12, with just the
-   word "started" being replaced by "modified".
+     Figure 12: subscription-modified subscription state notification
 
 A.2.2.  subscription-completed, subscription-resumed, and replay-
         complete
@@ -1117,6 +1114,9 @@ A.2.3.  subscription-terminated and subscription-suspended
 
 
 
+
+
+
 Voit, et al.              Expires April 6, 2019                [Page 20]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
@@ -1138,6 +1138,78 @@ Internet-Draft               RESTCONF-Notif                 October 2018
    "subscription-terminated" simply being replaced by "subscription-
    suspended".
 
+A.3.  Filter Example
+
+   This section provides an example which illustrate the method of
+   filtering event record contents.  The example is based on the YANG
+   notification "vrrp-protocol-error-event" as defined per the ietf-
+   vrrp.yang module within [RFC8347].  Event records based on this
+   specification which are generated by the publisher might appear as:
+
+         data: {
+         data:   "ietf-restconf:notification" : {
+         data:     "eventTime" : "2018-09-14T08:22:33.44Z",
+         data:     "ietf-vrrp:vrrp-protocol-error-event" : {
+         data:       "protocol-error-reason" : "checksum-error"
+         data:     }
+         data:   }
+         data: }
+
+             Figure 15: RFC 8347 (VRRP) - Example Notification
+
+   Suppose a subscriber wanted to establish a subscription which only
+   passes instances of event records where there is a "checksum-error"
+   as part of a VRRP protocol event.  Also assume the publisher places
+   such event records into the NETCONF stream.  To get a continuous
+   series of matching event records, the subscriber might request the
+   application of an XPath filter against the NETCONF stream.  An
+   "establish-subscription" RPC to meet this objective might be:
+
+
+
+
+
+
+
+
+
+Voit, et al.              Expires April 6, 2019                [Page 21]
+
+Internet-Draft               RESTCONF-Notif                 October 2018
+
+
+POST /restconf/operations/subscriptions:establish-subscription
+{
+   "ietf-subscribed-notifications:input": {
+      "stream": "NETCONF",
+      "stream-xpath-filter": "/ietf-vrrp:/vrrp-protocol-error-event[protocol-error-reason='checksum-error']/",
+   }
+}
+
+       Figure 16: Establishing a subscription error reason via XPATH
+
+   For more examples of xpath filters, see [XPATH].
+
+   Suppose the "establish-subscription" in Figure 16 was accepted.  And
+   suppose later a subscriber decided they wanted to broaden this
+   subscription cover to all VRRP protocol events (i.e., not just those
+   with a "checksum error").  The subscriber might attempt to modify the
+   subscription in a way which replaces the XPath filter with a subtree
+   filter which sends all VRRP protocol events to a subscriber.  Such a
+   "modify-subscription" RPC might look like:
+
+  POST /restconf/operations/subscriptions:modify-subscription
+  {
+     "ietf-subscribed-notifications:input": {
+        "stream": "NETCONF",
+        "stream-xpath-filter": "/ietf-vrrp:/vrrp-protocol-error-event/",
+     }
+  }
+
+                                 Figure 17
+
+   For more examples of subtree filters, see [RFC6241], section 6.4.
+
 Appendix B.  Changes between revisions
 
    (To be removed by RFC editor prior to publication)
@@ -1146,9 +1218,21 @@ Appendix B.  Changes between revisions
 
    o  Aligned with RESTCONF mechanism.
 
+   o  Removed augment of subscription-started from YANG model.
+
+   o  Appendix A.3 for filter example.
+
    v06 - v07
 
    o  Removed configured subscriptions.
+
+
+
+
+Voit, et al.              Expires April 6, 2019                [Page 22]
+
+Internet-Draft               RESTCONF-Notif                 October 2018
+
 
    o  Subscription identifier renamed to id.
 
@@ -1168,15 +1252,6 @@ Appendix B.  Changes between revisions
       easy comparison.
 
    v03 - v04
-
-
-
-
-
-Voit, et al.              Expires April 6, 2019                [Page 21]
-
-Internet-Draft               RESTCONF-Notif                 October 2018
-
 
    o  Draft not fully synched to new version of subscribed-notifications
       yet.
@@ -1206,6 +1281,15 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
    v00 - v01
 
+
+
+
+
+Voit, et al.              Expires April 6, 2019                [Page 23]
+
+Internet-Draft               RESTCONF-Notif                 October 2018
+
+
    o  Removed the ability for more than one subscription to go to a
       single HTTP2 stream.
 
@@ -1224,14 +1308,6 @@ Authors' Addresses
    Cisco Systems
 
    Email: evoit@cisco.com
-
-
-
-
-
-Voit, et al.              Expires April 6, 2019                [Page 22]
-
-Internet-Draft               RESTCONF-Notif                 October 2018
 
 
    Reshad Rahman
@@ -1265,24 +1341,4 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Voit, et al.              Expires April 6, 2019                [Page 23]
+Voit, et al.              Expires April 6, 2019                [Page 24]

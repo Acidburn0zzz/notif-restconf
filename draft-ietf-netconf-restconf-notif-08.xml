@@ -272,10 +272,10 @@
 
       <figure>
          <artwork><![CDATA[
-<CODE BEGINS> file "ietf-restconf-subscribed-notifications@2018-09-12.yang"
+<CODE BEGINS> file "ietf-restconf-subscribed-notifications@2018-10-03.yang"
 module ietf-restconf-subscribed-notifications {
   yang-version 1.1;
-  namespace 
+  namespace
     "urn:ietf:params:xml:ns:yang:ietf-restconf-subscribed-notifications";
 
   prefix rsn;
@@ -286,47 +286,54 @@ module ietf-restconf-subscribed-notifications {
   import ietf-inet-types {
     prefix inet;
   }
-  
+
   organization "IETF NETCONF (Network Configuration) Working Group";
   contact
     "WG Web:   <http:/tools.ietf.org/wg/netconf/>
      WG List:  <mailto:netconf@ietf.org>
-          
+
      Editor:   Eric Voit
                <mailto:evoit@cisco.com>
-     
+
      Editor:   Alexander Clemm
                <mailto:ludwig@clemm.org>
-               
+
      Editor:   Reshad Rahman
                <mailto:rrahman@cisco.com>";
 
   description
     "Defines RESTCONF as a supported transport for subscribed
     event notifications.
-    
-    Copyright (c) 2018 IETF Trust and the persons identified as authors 
+
+    Copyright (c) 2018 IETF Trust and the persons identified as authors
     of the code.  All rights reserved.
 
-    Redistribution and use in source and binary forms, with or without 
-    modification, is permitted pursuant to, and subject to the license 
-    terms contained in, the Simplified BSD License set forth in Section 
+    Redistribution and use in source and binary forms, with or without
+    modification, is permitted pursuant to, and subject to the license
+    terms contained in, the Simplified BSD License set forth in Section
     4.c of the IETF Trust's Legal Provisions Relating to IETF Documents
     (https://trustee.ietf.org/license-info).
 
-    This version of this YANG module is part of RFC XXXX; see the RFC 
+    This version of this YANG module is part of RFC XXXX; see the RFC
     itself for full legal notices.";
-  
-  revision 2018-09-12 {
+
+  revision 2018-10-03 {
     description
       "Initial version";
-    reference 
+    reference
       "RFC XXXX: RESTCONF Transport for Event Notifications";
   }
 
+  identity restconf {
+    base sn:transport;
+    description
+      "RESTCONF is used as transport for notification messages and state
+       change notifications.";
+  }
+  
   grouping uri {
     description
-      "Provides a reusable description of a URI.";   
+      "Provides a reusable description of a URI.";
     leaf uri {
       type inet:uri;
       config false;
@@ -334,34 +341,27 @@ module ietf-restconf-subscribed-notifications {
         "Location of a subscription specific URI on the publisher.";
     }
   }
-  
+
   augment "/sn:establish-subscription/sn:output" {
     description
-      "This augmentation allows HTTP specific parameters for a 
+      "This augmentation allows RESTCONF specific parameters for a
       response to a publisher's subscription request.";
     uses uri;
-  } 
-  
+  }
+
   augment "/sn:subscriptions/sn:subscription" {
     description
-      "This augmentation allows HTTP specific parameters to be
+      "This augmentation allows RESTCONF specific parameters to be
        exposed for a subscription.";
     uses uri;
   }
 
-  augment "/sn:subscription-started" {
-    description
-      "This augmentation allows HTTP specific parameters to be included 
-      part of the notification that a subscription has started.";
-    uses uri;
-  }  
-
   augment "/sn:subscription-modified" {
     description
-      "This augmentation allows HTTP specific parameters to be included 
+      "This augmentation allows RESTCONF specific parameters to be included
       part of the notification that a subscription has been modified.";
     uses uri;
-  } 
+  }
 
 }
 <CODE ENDS>
@@ -522,6 +522,7 @@ module ietf-restconf-subscribed-notifications {
 
       <?rfc include="reference.RFC.7231"?>
       <?rfc include="reference.RFC.7923"?>
+      <?rfc include="reference.RFC.8347"?>
       <reference anchor="I-D.draft-ietf-netconf-nmda-restconf"
                  target="https://datatracker.ietf.org/doc/draft-ietf-netconf-nmda-restconf/">
         <front>
@@ -549,6 +550,15 @@ module ietf-restconf-subscribed-notifications {
           <date month="May" year="2018"/>
         </front>
       </reference>
+      <reference anchor="XPATH"
+                 target="http://www.w3.org/TR/1999/REC-xpath-19991116">
+        <front>
+          <title>XML Path Language (XPath) Version 1.0</title>
+          <author fullname="J Clark" initials="J" surname="Clark"></author>
+          <author fullname="S DeRose" initials="S" surname="DeRose"></author>
+          <date month="November" year="1999"/>
+        </front>
+      </reference> 
 
     </references>
 
@@ -784,20 +794,18 @@ POST /restconf/operations/subscriptions:delete-subscription
 
          <t>A publisher will send subscription state notifications according to the definitions within <xref target="I-D.draft-ietf-netconf-subscribed-notifications"/>).</t>
 
-        <section title="subscription-started and subscription-modified">
+        <section title="subscription-modified">
+          <t>A "subscription-modified" encoded in JSON would look like:</t>
 
-
-          <t>A "subscription-started" encoded in JSON would look like:</t>
-
-          <figure align="center" anchor="subscription-started-ctrl-plane-notif"
-                title="subscription-started subscription state notification">
+          <figure align="center" anchor="subscription-modified-ctrl-plane-notif"
+                title="subscription-modified subscription state notification">
             <artwork><![CDATA[
 {
   "ietf-restconf:notification" : {
     "eventTime": "2007-09-01T10:00:00Z",
-    "ietf-subscribed-notifications:subscription-started": {
+    "ietf-subscribed-notifications:subscription-modified": {
       "id": "39",
-      "transport": "HTTP2",
+      "transport": "RESTCONF",
       "stream-xpath-filter": "/ex:foo",
       "stream": {
          "ietf-netconf-subscribed-notifications" : "NETCONF"
@@ -807,9 +815,6 @@ POST /restconf/operations/subscriptions:delete-subscription
 }
              ]]></artwork>
           </figure>
-
-          <t>The "subscription-modified" is identical to <xref target="subscription-started-ctrl-plane-notif"/>, with just the word "started" being replaced by "modified".</t>
-
         </section>
 
         <section title="subscription-completed, subscription-resumed, and replay-complete">
@@ -859,8 +864,65 @@ POST /restconf/operations/subscriptions:delete-subscription
           <t>The "subscription-suspended" is virtually identical, with "subscription-terminated" simply being replaced by "subscription-suspended".</t>
 
         </section>
-
+        
       </section>
+
+    <section title="Filter Example">
+    
+      <t>This section provides an example which illustrate the method of filtering event record contents.  The example is based on the YANG notification "vrrp-protocol-error-event" as defined per the ietf-vrrp.yang module within <xref target="RFC8347"/>.  Event records based on this specification which are generated by the publisher might appear as:</t>
+
+      <figure align="center" 
+              anchor="VRRP-notification" 
+              title="RFC 8347 (VRRP) - Example Notification">       
+                  <artwork><![CDATA[
+      data: {
+      data:   "ietf-restconf:notification" : {
+      data:     "eventTime" : "2018-09-14T08:22:33.44Z",
+      data:     "ietf-vrrp:vrrp-protocol-error-event" : {
+      data:       "protocol-error-reason" : "checksum-error"
+      data:     }
+      data:   }
+      data: }
+         ]]></artwork>
+      </figure>
+
+      <t>Suppose a subscriber wanted to establish a subscription which only passes instances of event records where there is a "checksum-error" as part of a VRRP protocol event.  Also assume the publisher places such event records into the NETCONF stream.  To get a continuous series of matching event records, the subscriber might request the application of an XPath filter against the NETCONF stream.  An "establish-subscription" RPC to meet this objective might be:</t>
+
+      <figure align="center" 
+              anchor="VRRP-XPATH" 
+              title="Establishing a subscription error reason via XPATH">       
+                  <artwork><![CDATA[
+POST /restconf/operations/subscriptions:establish-subscription
+{
+   "ietf-subscribed-notifications:input": {
+      "stream": "NETCONF",
+      "stream-xpath-filter": "/ietf-vrrp:/vrrp-protocol-error-event[protocol-error-reason='checksum-error']/",
+   }
+}
+         ]]></artwork>
+      </figure>
+
+      <t>For more examples of xpath filters, see <xref target="XPATH"/>.</t>
+
+      <t>Suppose the "establish-subscription" in <xref target="VRRP-XPATH"/> was accepted. And suppose later a subscriber decided they wanted to broaden this subscription cover to all VRRP protocol events (i.e., not just those with a "checksum error").  The subscriber might attempt to modify the subscription in a way which replaces the XPath filter with a subtree filter which sends all VRRP protocol events to a subscriber. Such a "modify-subscription" RPC might look like:</t>
+
+      <figure align="center" 
+              anchor="VRRP-Subtree" 
+              title="">       
+                  <artwork><![CDATA[ 
+POST /restconf/operations/subscriptions:modify-subscription
+{
+   "ietf-subscribed-notifications:input": {
+      "stream": "NETCONF",
+      "stream-xpath-filter": "/ietf-vrrp:/vrrp-protocol-error-event/",
+   }
+}
+         ]]></artwork>
+      </figure>
+
+      <t>For more examples of subtree filters, see <xref target="RFC6241"/>, section 6.4.</t>
+     
+    </section>   
 
     </section>
 
@@ -870,6 +932,8 @@ POST /restconf/operations/subscriptions:delete-subscription
       <t>v07 - v08</t>
           <t><list style="symbols">
             <t>Aligned with RESTCONF mechanism.</t>
+            <t>Removed augment of subscription-started from YANG model.</t>
+            <t>Appendix A.3 for filter example.</t>
         </list>
       </t>
       
