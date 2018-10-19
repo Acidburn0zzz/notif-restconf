@@ -5,15 +5,15 @@
 NETCONF                                                          E. Voit
 Internet-Draft                                                 R. Rahman
 Intended status: Standards Track                       E. Nilsen-Nygaard
-Expires: April 21, 2019                                    Cisco Systems
+Expires: April 22, 2019                                    Cisco Systems
                                                                 A. Clemm
                                                                   Huawei
                                                               A. Bierman
                                                                YumaWorks
-                                                        October 18, 2018
+                                                        October 19, 2018
 
 
-                RESTCONF Support for Event Notifications
+    Dynamic subscription to YANG Events and Datastores over RESTCONF
                   draft-ietf-netconf-restconf-notif-09
 
 Abstract
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 21, 2019.
+   This Internet-Draft will expire on April 22, 2019.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 1]
+Voit, et al.             Expires April 22, 2019                 [Page 1]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 2]
+Voit, et al.             Expires April 22, 2019                 [Page 2]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -165,7 +165,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 3]
+Voit, et al.             Expires April 22, 2019                 [Page 3]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -221,7 +221,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 4]
+Voit, et al.             Expires April 22, 2019                 [Page 4]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -277,7 +277,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 5]
+Voit, et al.             Expires April 22, 2019                 [Page 5]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -333,7 +333,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 6]
+Voit, et al.             Expires April 22, 2019                 [Page 6]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -389,7 +389,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 7]
+Voit, et al.             Expires April 22, 2019                 [Page 7]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -445,12 +445,12 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 8]
+Voit, et al.             Expires April 22, 2019                 [Page 8]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
 
-<CODE BEGINS> file "ietf-restconf-subscribed-notifications@2018-10-18.yang"
+<CODE BEGINS> file "ietf-restconf-subscribed-notifications@2018-10-19.yang"
 module ietf-restconf-subscribed-notifications {
   yang-version 1.1;
   namespace
@@ -495,13 +495,13 @@ module ietf-restconf-subscribed-notifications {
     This version of this YANG module is part of RFC XXXX; see the RFC
     itself for full legal notices.";
 
-  revision 2018-10-18 {
+  revision 2018-10-19 {
     description
       "Initial version";
 
 
 
-Voit, et al.             Expires April 21, 2019                 [Page 9]
+Voit, et al.             Expires April 22, 2019                 [Page 9]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -524,7 +524,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
   augment "/sn:establish-subscription/sn:output" {
     description
       "This augmentation allows RESTCONF specific parameters for a
-      response to a publisher's subscription request.";
+       response to a publisher's subscription request.";
     uses uri;
   }
 
@@ -532,6 +532,13 @@ Internet-Draft               RESTCONF-Notif                 October 2018
     description
       "This augmentation allows RESTCONF specific parameters to be
        exposed for a subscription.";
+    uses uri;
+  }
+
+  augment "/sn:subscription-modified" {
+    description
+      "This augmentation allows RESTCONF specific parameters to be included
+       part of the notification that a subscription has been modified.";
     uses uri;
   }
 }
@@ -547,6 +554,14 @@ Internet-Draft               RESTCONF-Notif                 October 2018
    Registrant Contact: The IESG.
    XML: N/A; the requested URI is an XML namespace.
 
+
+
+
+Voit, et al.             Expires April 22, 2019                [Page 10]
+
+Internet-Draft               RESTCONF-Notif                 October 2018
+
+
    This document registers the following YANG module in the "YANG Module
    Names" registry [RFC6020]:
 
@@ -554,14 +569,6 @@ Internet-Draft               RESTCONF-Notif                 October 2018
    Namespace: urn:ietf:params:xml:ns:yang:ietf-restconf-subscribed-
    notifications
    Prefix: rsn
-
-
-
-Voit, et al.             Expires April 21, 2019                [Page 10]
-
-Internet-Draft               RESTCONF-Notif                 October 2018
-
-
    Reference: RFC XXXX: RESTCONF Transport for Event Notifications
 
 9.  Security Considerations
@@ -604,19 +611,19 @@ Internet-Draft               RESTCONF-Notif                 October 2018
               Streams", draft-ietf-netconf-subscribed-notifications-13
               (work in progress), April 2018.
 
+
+
+Voit, et al.             Expires April 22, 2019                [Page 11]
+
+Internet-Draft               RESTCONF-Notif                 October 2018
+
+
    [I-D.ietf-netconf-yang-push]
               Clemm, A., Voit, E., Gonzalez Prieto, A., Prasad Tripathy,
               A., Nilsen-Nygaard, E., Bierman, A., and B. Lengyel,
               "Subscribing to YANG datastore push updates", March 2017,
               <https://datatracker.ietf.org/doc/
               draft-ietf-netconf-yang-push/>.
-
-
-
-Voit, et al.             Expires April 21, 2019                [Page 11]
-
-Internet-Draft               RESTCONF-Notif                 October 2018
-
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -656,6 +663,17 @@ Internet-Draft               RESTCONF-Notif                 October 2018
               DOI 10.17487/RFC6520, February 2012,
               <https://www.rfc-editor.org/info/rfc6520>.
 
+
+
+
+
+
+
+Voit, et al.             Expires April 22, 2019                [Page 12]
+
+Internet-Draft               RESTCONF-Notif                 October 2018
+
+
    [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Message Syntax and Routing",
               RFC 7230, DOI 10.17487/RFC7230, June 2014,
@@ -665,14 +683,6 @@ Internet-Draft               RESTCONF-Notif                 October 2018
               Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
               DOI 10.17487/RFC7540, May 2015,
               <https://www.rfc-editor.org/info/rfc7540>.
-
-
-
-
-Voit, et al.             Expires April 21, 2019                [Page 12]
-
-Internet-Draft               RESTCONF-Notif                 October 2018
-
 
    [RFC8040]  Bierman, A., Bjorklund, M., and K. Watsen, "RESTCONF
               Protocol", RFC 8040, DOI 10.17487/RFC8040, January 2017,
@@ -709,6 +719,17 @@ Internet-Draft               RESTCONF-Notif                 October 2018
               DOI 10.17487/RFC7231, June 2014,
               <https://www.rfc-editor.org/info/rfc7231>.
 
+
+
+
+
+
+
+Voit, et al.             Expires April 22, 2019                [Page 13]
+
+Internet-Draft               RESTCONF-Notif                 October 2018
+
+
    [RFC7923]  Voit, E., Clemm, A., and A. Gonzalez Prieto, "Requirements
               for Subscription to YANG Datastores", RFC 7923,
               DOI 10.17487/RFC7923, June 2016,
@@ -719,16 +740,6 @@ Internet-Draft               RESTCONF-Notif                 October 2018
               Redundancy Protocol (VRRP)", RFC 8347,
               DOI 10.17487/RFC8347, March 2018,
               <https://www.rfc-editor.org/info/rfc8347>.
-
-
-
-
-
-
-Voit, et al.             Expires April 21, 2019                [Page 13]
-
-Internet-Draft               RESTCONF-Notif                 October 2018
-
 
    [XPATH]    Clark, J. and S. DeRose, "XML Path Language (XPath)
               Version 1.0", November 1999,
@@ -770,18 +781,7 @@ A.1.1.  Establishing Dynamic Subscriptions
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-Voit, et al.             Expires April 21, 2019                [Page 14]
+Voit, et al.             Expires April 22, 2019                [Page 14]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -837,7 +837,7 @@ POST /restconf/operations/ietf-subscribed-notifications:establish-subscription
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 15]
+Voit, et al.             Expires April 22, 2019                [Page 15]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -846,7 +846,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
    {
       "id": "22",
-      "uri": "/https://example.com/restconf/subscriptions/22"
+      "uri": "https://example.com/restconf/subscriptions/22"
    }
 
 
@@ -893,7 +893,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 16]
+Voit, et al.             Expires April 22, 2019                [Page 16]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -949,7 +949,7 @@ A.1.2.  Modifying Dynamic Subscriptions
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 17]
+Voit, et al.             Expires April 22, 2019                [Page 17]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -1005,7 +1005,7 @@ A.1.3.  Deleting Dynamic Subscriptions
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 18]
+Voit, et al.             Expires April 22, 2019                [Page 18]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -1061,7 +1061,7 @@ A.2.1.  subscription-modified
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 19]
+Voit, et al.             Expires April 22, 2019                [Page 19]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -1071,6 +1071,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
        "eventTime": "2007-09-01T10:00:00Z",
        "ietf-subscribed-notifications:subscription-modified": {
          "id": "39",
+         "uri": "https://example.com/restconf/subscriptions/22"
          "stream-xpath-filter": "/example-module:foo",
          "stream": {
             "ietf-netconf-subscribed-notifications" : "NETCONF"
@@ -1116,8 +1117,7 @@ A.2.3.  subscription-terminated and subscription-suspended
 
 
 
-
-Voit, et al.             Expires April 21, 2019                [Page 20]
+Voit, et al.             Expires April 22, 2019                [Page 20]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -1173,7 +1173,7 @@ A.3.  Filter Example
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 21]
+Voit, et al.             Expires April 22, 2019                [Page 21]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -1229,7 +1229,7 @@ Appendix B.  Changes between revisions
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 22]
+Voit, et al.             Expires April 22, 2019                [Page 22]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -1285,7 +1285,7 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 23]
+Voit, et al.             Expires April 22, 2019                [Page 23]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -1341,7 +1341,7 @@ Authors' Addresses
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 24]
+Voit, et al.             Expires April 22, 2019                [Page 24]
 
 Internet-Draft               RESTCONF-Notif                 October 2018
 
@@ -1397,4 +1397,4 @@ Internet-Draft               RESTCONF-Notif                 October 2018
 
 
 
-Voit, et al.             Expires April 21, 2019                [Page 25]
+Voit, et al.             Expires April 22, 2019                [Page 25]

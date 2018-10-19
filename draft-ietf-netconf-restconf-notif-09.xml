@@ -14,7 +14,7 @@
      ipr="trust200902">
 
   <front>
-    <title abbrev="RESTCONF-Notif">RESTCONF Support for Event Notifications</title>
+    <title abbrev="RESTCONF-Notif">Dynamic subscription to YANG Events and Datastores over RESTCONF</title>
 
     <author fullname="Eric Voit" initials="E." surname="Voit">
       <organization>Cisco Systems</organization>
@@ -55,7 +55,7 @@
       </address>
     </author>
 
-    <date day="18" month="October" year="2018"/>
+    <date day="19" month="October" year="2018"/>
 
     <area>Operations &amp; Management</area>
 
@@ -263,7 +263,7 @@
 
       <figure>
          <artwork><![CDATA[
-<CODE BEGINS> file "ietf-restconf-subscribed-notifications@2018-10-18.yang"
+<CODE BEGINS> file "ietf-restconf-subscribed-notifications@2018-10-19.yang"
 module ietf-restconf-subscribed-notifications {
   yang-version 1.1;
   namespace
@@ -308,7 +308,7 @@ module ietf-restconf-subscribed-notifications {
     This version of this YANG module is part of RFC XXXX; see the RFC
     itself for full legal notices.";
 
-  revision 2018-10-18 {
+  revision 2018-10-19 {
     description
       "Initial version";
     reference
@@ -329,7 +329,7 @@ module ietf-restconf-subscribed-notifications {
   augment "/sn:establish-subscription/sn:output" {
     description
       "This augmentation allows RESTCONF specific parameters for a
-      response to a publisher's subscription request.";
+       response to a publisher's subscription request.";
     uses uri;
   }
 
@@ -337,6 +337,13 @@ module ietf-restconf-subscribed-notifications {
     description
       "This augmentation allows RESTCONF specific parameters to be
        exposed for a subscription.";
+    uses uri;
+  }
+
+  augment "/sn:subscription-modified" {
+    description
+      "This augmentation allows RESTCONF specific parameters to be included
+       part of the notification that a subscription has been modified.";
     uses uri;
   }
 }
@@ -606,7 +613,7 @@ HTTP status code - 200
 
 {
    "id": "22",
-   "uri": "/https://example.com/restconf/subscriptions/22"
+   "uri": "https://example.com/restconf/subscriptions/22"
 }
 
              ]]></artwork>
@@ -780,6 +787,7 @@ POST /restconf/operations/ietf-subscribed-notifications:delete-subscription
     "eventTime": "2007-09-01T10:00:00Z",
     "ietf-subscribed-notifications:subscription-modified": {
       "id": "39",
+      "uri": "https://example.com/restconf/subscriptions/22"
       "stream-xpath-filter": "/example-module:foo",
       "stream": {
          "ietf-netconf-subscribed-notifications" : "NETCONF"
