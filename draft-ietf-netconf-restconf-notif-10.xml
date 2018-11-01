@@ -221,6 +221,7 @@
           <t>All subscription state notifications from a publisher MUST be returned in a separate SSE message used by the subscription to which the state change refers.</t>
           <t>Subscription RPCs MUST NOT use the connection currently providing notification messages for that subscription.</t>
           <t>In addition to an RPC response for a "modify-subscription" RPC traveling over (a), a "subscription-modified" state change notification must be sent within (b).  This allows the receiver to know exactly when the new terms of the subscription have been applied to the notification messages.  See arrow (c).</t>
+          <t>RPCs modify-subscription, resync-subscription and delete-subscription can only be done by the same RESTCONF username <xref target="RFC8040"/> who did the establish-subscription, or by a RESTCONF username with the required administrative permissions. The latter also has access to the kill-subscription RPC.</t>
         </list></t>
         <t>A publisher MUST terminate a subscription in the following cases:</t>
         <t><list style="symbols">
