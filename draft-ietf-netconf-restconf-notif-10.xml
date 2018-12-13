@@ -10,7 +10,7 @@
 <?rfc inline="yes"?>
 <?rfc compact="yes"?>
 <?rfc subcompact="no"?>
-<rfc category="std" docName="draft-ietf-netconf-restconf-notif-09"
+<rfc category="std" docName="draft-ietf-netconf-restconf-notif-10"
      ipr="trust200902">
 
   <front>
@@ -913,6 +913,13 @@ POST /restconf/operations/ietf-subscribed-notifications:modify-subscription
 
     <section title="Changes between revisions">
       <t>(To be removed by RFC editor prior to publication)</t>
+
+      <t>v09 - v10</t>
+          <t><list style="symbols">
+            <t>Fixed typo for resync.</t>
+            <t>Added text wrt RPC permissions and RESTCONF username.</t>
+        </list>
+      </t>
 
       <t>v08 - v09</t>
           <t><list style="symbols">
