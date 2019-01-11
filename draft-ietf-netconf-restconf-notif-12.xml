@@ -55,7 +55,7 @@
       </address>
     </author>
 
-    <date day="10" month="January" year="2019"/>
+    <date day="11" month="January" year="2019"/>
 
     <area>Operations &amp; Management</area>
 
@@ -276,9 +276,9 @@ module: ietf-restconf-subscribed-notifications
       <t>This module references <xref target="I-D.draft-ietf-netconf-subscribed-notifications"/>.</t>
 
       <figure>
-         <artwork name="ietf-restconf-subscribed-notifications@2019-01-09.yang"><![CDATA[
+         <artwork name="ietf-restconf-subscribed-notifications@2019-01-11.yang"><![CDATA[
 <CODE BEGINS> file 
-   "ietf-restconf-subscribed-notifications@2019-01-09.yang"
+   "ietf-restconf-subscribed-notifications@2019-01-11.yang"
 module ietf-restconf-subscribed-notifications {
   yang-version 1.1;
   namespace
@@ -324,7 +324,7 @@ module ietf-restconf-subscribed-notifications {
      This version of this YANG module is part of RFC XXXX; see the RFC
      itself for full legal notices.";
 
-  revision 2019-01-09 {
+  revision 2019-01-11 {
     description
       "Initial version";
     reference
@@ -359,7 +359,7 @@ module ietf-restconf-subscribed-notifications {
   augment "/sn:subscription-modified" {
     description
       "This augmentation allows RESTCONF specific parameters to be 
-       included part of the notification that a subscription has been 
+       included as part of the notification that a subscription has been 
        modified.";
     uses uri;
   }
