@@ -5,12 +5,12 @@
 NETCONF                                                          E. Voit
 Internet-Draft                                                 R. Rahman
 Intended status: Standards Track                       E. Nilsen-Nygaard
-Expires: August 4, 2019                                    Cisco Systems
+Expires: August 18, 2019                                   Cisco Systems
                                                                 A. Clemm
                                                                   Huawei
                                                               A. Bierman
                                                                YumaWorks
-                                                        January 31, 2019
+                                                       February 14, 2019
 
 
     Dynamic subscription to YANG Events and Datastores over RESTCONF
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 4, 2019.
+   This Internet-Draft will expire on August 18, 2019.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 1]
+Voit, et al.             Expires August 18, 2019                [Page 1]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    the Trust Legal Provisions and are provided without warranty as
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 2]
+Voit, et al.             Expires August 18, 2019                [Page 2]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    The streaming of notifications encapsulating the resulting
@@ -165,9 +165,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 3]
+Voit, et al.             Expires August 18, 2019                [Page 3]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
 3.1.  Transport Connectivity
@@ -221,9 +221,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 4]
+Voit, et al.             Expires August 18, 2019                [Page 4]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    When a "406" status code is returned, the RPC reply MUST include an
@@ -277,9 +277,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 5]
+Voit, et al.             Expires August 18, 2019                [Page 5]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
             RPC                     select an identity with a base
@@ -333,9 +333,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 6]
+Voit, et al.             Expires August 18, 2019                [Page 6]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
 3.4.  Call Flow for Server-Sent Events (SSE)
@@ -389,9 +389,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 7]
+Voit, et al.             Expires August 18, 2019                [Page 7]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    +--------------+                             +--------------+
@@ -445,9 +445,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 8]
+Voit, et al.             Expires August 18, 2019                [Page 8]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
       know exactly when the new terms of the subscription have been
@@ -501,9 +501,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                 [Page 9]
+Voit, et al.             Expires August 18, 2019                [Page 9]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
 5.  Notification Messages
@@ -557,9 +557,9 @@ module ietf-restconf-subscribed-notifications {
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 10]
+Voit, et al.             Expires August 18, 2019               [Page 10]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
      Editor:   Alexander Clemm
@@ -613,9 +613,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 11]
+Voit, et al.             Expires August 18, 2019               [Page 11]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
     description
@@ -669,9 +669,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 12]
+Voit, et al.             Expires August 18, 2019               [Page 12]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    or notification) to this data nodes.  These are the subtrees and data
@@ -725,9 +725,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 13]
+Voit, et al.             Expires August 18, 2019               [Page 13]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    [RFC3688]  Mealling, M., "The IETF XML Registry", BCP 81, RFC 3688,
@@ -781,9 +781,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 14]
+Voit, et al.             Expires August 18, 2019               [Page 14]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
 11.2.  Informative References
@@ -837,9 +837,9 @@ Appendix A.  Examples
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 15]
+Voit, et al.             Expires August 18, 2019               [Page 15]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
 A.1.  Dynamic Subscriptions
@@ -893,9 +893,9 @@ A.1.1.  Establishing Dynamic Subscriptions
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 16]
+Voit, et al.             Expires August 18, 2019               [Page 16]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    POST /restconf/operations
@@ -949,9 +949,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 17]
+Voit, et al.             Expires August 18, 2019               [Page 17]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
          HTTP status code - 406
@@ -1005,9 +1005,9 @@ A.1.2.  Modifying Dynamic Subscriptions
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 18]
+Voit, et al.             Expires August 18, 2019               [Page 18]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
       +------------+                 +-----------+
@@ -1061,9 +1061,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 19]
+Voit, et al.             Expires August 18, 2019               [Page 19]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    of the proposed changes, the publisher sends an RPC error response
@@ -1117,9 +1117,9 @@ A.1.3.  Deleting Dynamic Subscriptions
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 20]
+Voit, et al.             Expires August 18, 2019               [Page 20]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    but that subscription identifier was created on a different transport
@@ -1173,9 +1173,9 @@ A.2.1.  subscription-modified
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 21]
+Voit, et al.             Expires August 18, 2019               [Page 21]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
 A.2.2.  subscription-completed, subscription-resumed, and replay-
@@ -1229,9 +1229,9 @@ A.3.  Filter Example
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 22]
+Voit, et al.             Expires August 18, 2019               [Page 22]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
          data: {
@@ -1285,9 +1285,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 23]
+Voit, et al.             Expires August 18, 2019               [Page 23]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    POST /restconf/operations
@@ -1311,7 +1311,7 @@ Appendix B.  Changes between revisions
 
    v12 - v13
 
-   o  Enhanced "error-tag" values.
+   o  Enhanced "error-tag" values based on SN review.
 
    v11 - v12
 
@@ -1341,9 +1341,9 @@ Appendix B.  Changes between revisions
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 24]
+Voit, et al.             Expires August 18, 2019               [Page 24]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    o  Section 7, fixed indentation of module description statement.
@@ -1397,9 +1397,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 25]
+Voit, et al.             Expires August 18, 2019               [Page 25]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    o  JSON examples updated by Reshad.
@@ -1453,9 +1453,9 @@ Internet-Draft               RESTCONF-Notif                 January 2019
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 26]
+Voit, et al.             Expires August 18, 2019               [Page 26]
 
-Internet-Draft               RESTCONF-Notif                 January 2019
+Internet-Draft               RESTCONF-Notif                February 2019
 
 
    o  SSE only used with RESTCONF and HTTP1.1 dynamic subscriptions
@@ -1509,4 +1509,4 @@ Authors' Addresses
 
 
 
-Voit, et al.             Expires August 4, 2019                [Page 27]
+Voit, et al.             Expires August 18, 2019               [Page 27]

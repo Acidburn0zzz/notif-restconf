@@ -55,7 +55,7 @@
       </address>
     </author>
 
-    <date day="31" month="January" year="2019"/>
+    <date day="14" month="February" year="2019"/>
 
     <area>Operations &amp; Management</area>
 
@@ -977,7 +977,7 @@ POST /restconf/operations
 
       <t>v12 - v13</t>
           <t><list style="symbols">
-            <t>Enhanced "error-tag" values.</t>
+            <t>Enhanced "error-tag" values based on SN review.</t>
         </list>
       </t>
       <t>v11 - v12</t>
