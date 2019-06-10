@@ -5,12 +5,12 @@
 NETCONF                                                          E. Voit
 Internet-Draft                                                 R. Rahman
 Intended status: Standards Track                       E. Nilsen-Nygaard
-Expires: December 9, 2019                                  Cisco Systems
+Expires: December 12, 2019                                 Cisco Systems
                                                                 A. Clemm
                                                                   Huawei
                                                               A. Bierman
                                                                YumaWorks
-                                                            June 7, 2019
+                                                           June 10, 2019
 
 
     Dynamic subscription to YANG Events and Datastores over RESTCONF
@@ -36,7 +36,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 9, 2019.
+   This Internet-Draft will expire on December 12, 2019.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 1]
+Voit, et al.            Expires December 12, 2019               [Page 1]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 2]
+Voit, et al.            Expires December 12, 2019               [Page 2]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -165,7 +165,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 3]
+Voit, et al.            Expires December 12, 2019               [Page 3]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -221,7 +221,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 4]
+Voit, et al.            Expires December 12, 2019               [Page 4]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -277,7 +277,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 5]
+Voit, et al.            Expires December 12, 2019               [Page 5]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -333,7 +333,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 6]
+Voit, et al.            Expires December 12, 2019               [Page 6]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -389,7 +389,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 7]
+Voit, et al.            Expires December 12, 2019               [Page 7]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -445,7 +445,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 8]
+Voit, et al.            Expires December 12, 2019               [Page 8]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -501,7 +501,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019                [Page 9]
+Voit, et al.            Expires December 12, 2019               [Page 9]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -557,7 +557,7 @@ module ietf-restconf-subscribed-notifications {
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 10]
+Voit, et al.            Expires December 12, 2019              [Page 10]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -613,7 +613,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 11]
+Voit, et al.            Expires December 12, 2019              [Page 11]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -669,7 +669,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 12]
+Voit, et al.            Expires December 12, 2019              [Page 12]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -725,7 +725,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 13]
+Voit, et al.            Expires December 12, 2019              [Page 13]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -781,7 +781,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 14]
+Voit, et al.            Expires December 12, 2019              [Page 14]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -837,7 +837,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 15]
+Voit, et al.            Expires December 12, 2019              [Page 15]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -893,7 +893,7 @@ A.1.1.  Establishing Dynamic Subscriptions
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 16]
+Voit, et al.            Expires December 12, 2019              [Page 16]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -949,7 +949,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 17]
+Voit, et al.            Expires December 12, 2019              [Page 17]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1005,7 +1005,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 18]
+Voit, et al.            Expires December 12, 2019              [Page 18]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1061,7 +1061,7 @@ A.1.2.  Modifying Dynamic Subscriptions
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 19]
+Voit, et al.            Expires December 12, 2019              [Page 19]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1117,7 +1117,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 20]
+Voit, et al.            Expires December 12, 2019              [Page 20]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1173,7 +1173,7 @@ A.2.  Subscription State Notifications
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 21]
+Voit, et al.            Expires December 12, 2019              [Page 21]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1229,7 +1229,7 @@ A.2.3.  subscription-terminated and subscription-suspended
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 22]
+Voit, et al.            Expires December 12, 2019              [Page 22]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1285,7 +1285,7 @@ A.3.  Filter Example
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 23]
+Voit, et al.            Expires December 12, 2019              [Page 23]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1341,7 +1341,7 @@ Appendix B.  Changes between revisions
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 24]
+Voit, et al.            Expires December 12, 2019              [Page 24]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1397,7 +1397,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 25]
+Voit, et al.            Expires December 12, 2019              [Page 25]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1453,7 +1453,7 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 26]
+Voit, et al.            Expires December 12, 2019              [Page 26]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1509,7 +1509,7 @@ Authors' Addresses
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 27]
+Voit, et al.            Expires December 12, 2019              [Page 27]
 
 Internet-Draft               RESTCONF-Notif                    June 2019
 
@@ -1565,4 +1565,4 @@ Internet-Draft               RESTCONF-Notif                    June 2019
 
 
 
-Voit, et al.            Expires December 9, 2019               [Page 28]
+Voit, et al.            Expires December 12, 2019              [Page 28]
